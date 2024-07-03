@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.StfDtos
 {
-    public class StfCapchaDTO
+    public class StfCaptchaDTO
     {
         public string Token { get; set; }
 

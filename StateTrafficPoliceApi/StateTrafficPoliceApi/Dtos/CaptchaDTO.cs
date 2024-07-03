@@ -2,11 +2,11 @@
 
 namespace StateTrafficPoliceApi.Dtos
 {
-    public class CapchaDTO : StfCapchaDTO
+    public class CapchaDTO : StfCaptchaDTO
     {
         public string CapchaWord { get; set; }
 
-        internal static CapchaDTO FromStf(StfCapchaDTO stfCapcha, string capchaWord)
+        internal static CapchaDTO FromStf(StfCaptchaDTO stfCapcha, string capchaWord)
         {
             return new()
             {

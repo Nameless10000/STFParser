@@ -1,16 +1,32 @@
-﻿using StateTrafficPoliceApi.Dtos;
+﻿using Microsoft.Extensions.Caching.Memory;
+using StateTrafficPoliceApi.Dtos;
 using StateTrafficPoliceApi.StfDtos;
+using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
 {
-    public class ParserService
+    public partial class ParserService(IMemoryCache cache)
     {
         private readonly HttpClient _httpClient = new();
+
+        private async Task SetHeaders()
+        {
+            var response = await _httpClient.GetAsync("https://гибдд.рф/check/driver");
+            var content = await response.Content.ReadAsStringAsync();
+
+            var match = CsrfToken().Match(content);
+            var tokenValue = match.Groups[1].Value;
+
+
+            _httpClient.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+
+            _httpClient.DefaultRequestHeaders.Add("X-Csrftokensec", tokenValue);
+        }
 
         public async Task<CapchaDTO> GetCapcha()
         {
             var response = await _httpClient.GetAsync("https://check.gibdd.ru/captcha");
-            var capcha = (await response.Content.ReadFromJsonAsync<StfCapchaDTO>())!;
+            var capcha = (await response.Content.ReadFromJsonAsync<StfCaptchaDTO>())!;
 
             using var fs = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Gibdd Capcha.jpeg"));
             fs.Write(capcha.Bytes);
@@ -28,17 +44,25 @@ namespace StateTrafficPoliceApi.Services
 
             var resolvedDto = DrivingLicenseResolvedDTO.FromCheck(checkDTO, resolvedCaphca);
 
-            var content = new MultipartFormDataContent()
+            var content = new Dictionary<string, string>()
             {
-                { new StringContent(resolvedDto.Date), "date"},
-                { new StringContent(resolvedDto.Num), "num"},
-                { new StringContent(resolvedDto.CapchaWord), "capchaWord"},
-                { new StringContent(resolvedDto.CapchaToken), "capchaToken"},
+                { "date", resolvedDto.Date },
+                { "num", resolvedDto.Num },
+                { "captchaWord", resolvedDto.CapchaWord },
+                { "captchaToken", resolvedDto.CapchaToken },
             };
-            var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", content);
+
+            await SetHeaders();
+
+            var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", new FormUrlEncodedContent(content));
             var stfResponse = await response.Content.ReadFromJsonAsync<StfResponseDTO>();
 
+
+
             return stfResponse;
-        } 
+        }
+
+        [GeneratedRegex("<meta name=\'csrf-token-value\' content=\'(.+)\'/>")]
+        private static partial Regex CsrfToken();
     }
 }
