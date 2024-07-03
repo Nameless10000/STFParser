@@ -10,7 +10,7 @@
 
         public string CapchaWord { get; set; }
 
-        internal static DrivingLicenseResolvedDTO FromCheck(DrivingLicenseCheckDTO checkDTO, CapchaDTO capchaDTO)
+        internal static DrivingLicenseResolvedDTO FromCheck(DrivingLicenseCheckDTO checkDTO, CaptchaDTO capchaDTO)
         {
             return new()
             {

@@ -23,7 +23,7 @@ namespace StateTrafficPoliceApi.Services
             _httpClient.DefaultRequestHeaders.Add("X-Csrftokensec", tokenValue);
         }
 
-        public async Task<CapchaDTO> GetCapcha()
+        public async Task<CaptchaDTO> GetCapcha()
         {
             var response = await _httpClient.GetAsync("https://check.gibdd.ru/captcha");
             var capcha = (await response.Content.ReadFromJsonAsync<StfCaptchaDTO>())!;
@@ -35,7 +35,7 @@ namespace StateTrafficPoliceApi.Services
             Console.WriteLine("Введите решение капчи с рабочего стола (5 цифр)");
             var capchaWord = Console.ReadLine();
 
-            return CapchaDTO.FromStf(capcha, capchaWord);
+            return CaptchaDTO.FromStf(capcha, capchaWord);
         }
 
         public async Task<StfResponseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
