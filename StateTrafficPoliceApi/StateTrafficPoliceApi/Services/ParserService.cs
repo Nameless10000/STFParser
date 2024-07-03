@@ -23,24 +23,12 @@ namespace StateTrafficPoliceApi.Services
             _httpClient.DefaultRequestHeaders.Add("X-Csrftokensec", tokenValue);
         }
 
-        public async Task<CaptchaDTO> GetCapcha()
-        {
-            var response = await _httpClient.GetAsync("https://check.gibdd.ru/captcha");
-            var capcha = (await response.Content.ReadFromJsonAsync<StfCaptchaDTO>())!;
-
-            using var fs = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Gibdd Capcha.jpeg"));
-            fs.Write(capcha.Bytes);
-            fs.Close();
-
-            Console.WriteLine("Введите решение капчи с рабочего стола (5 цифр)");
-            var capchaWord = Console.ReadLine();
-
-            return CaptchaDTO.FromStf(capcha, capchaWord);
-        }
+        
 
         public async Task<StfResponseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
         {
-            var resolvedCaphca = await GetCapcha();
+            if (!cache.TryGetValue<CaptchaDTO>("captcha", out var resolvedCaphca))
+                throw new Exception("No valid captcha in memory");
 
             var resolvedDto = DrivingLicenseResolvedDTO.FromCheck(checkDTO, resolvedCaphca);
 
@@ -56,8 +44,6 @@ namespace StateTrafficPoliceApi.Services
 
             var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", new FormUrlEncodedContent(content));
             var stfResponse = await response.Content.ReadFromJsonAsync<StfResponseDTO>();
-
-
 
             return stfResponse;
         }

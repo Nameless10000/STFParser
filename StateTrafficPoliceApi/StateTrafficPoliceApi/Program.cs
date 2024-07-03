@@ -1,6 +1,7 @@
 using Quartz;
 using Quartz.Simpl;
 using Quartz.Spi;
+using StateTrafficPoliceApi.Jobs;
 using StateTrafficPoliceApi.Services;
 
 namespace StateTrafficPoliceApi
@@ -19,7 +20,18 @@ namespace StateTrafficPoliceApi
             {
                 q.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
 
-                // jobs&triggers here
+                var jobKey = new JobKey("CaptchaRenewalJob", "group1");
+                q.AddJob<CaptchaRenewalJob>(opts => opts
+                    .WithIdentity(jobKey));
+
+                q.AddTrigger(opts => opts
+                    .ForJob(jobKey)
+                    .WithIdentity("CaptchaRenewalTrigger", "group1")
+                    .WithSimpleSchedule(x =>
+                        x.WithIntervalInSeconds(55)
+                        .RepeatForever())
+                    .StartNow()
+                    );
             });
 
             builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

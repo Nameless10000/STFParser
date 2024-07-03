@@ -23,7 +23,7 @@ namespace StateTrafficPoliceApi.StfDtos
 
         public string Comment { get; set; }
 
-        public TimeSpan Time { get; set; }
+        public long Time { get; set; }
 
         public string Id { get; set; }
 
