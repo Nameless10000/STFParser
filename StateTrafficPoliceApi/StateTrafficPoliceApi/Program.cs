@@ -1,3 +1,4 @@
+using AutoMapper;
 using Quartz;
 using Quartz.Simpl;
 using Quartz.Spi;
@@ -14,6 +15,11 @@ namespace StateTrafficPoliceApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            var mapper = new MapperConfiguration(mc => mc.AddProfile<MapperProfile>())
+                .CreateMapper();
+
+            builder.Services.AddSingleton(mapper);
 
             builder.Services.AddTransient<ParserService>();
             builder.Services.AddTransient<FlaskService>();

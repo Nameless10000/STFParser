@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using AutoMapper;
+using Microsoft.Extensions.Caching.Memory;
 using StateTrafficPoliceApi.Dtos;
 using StateTrafficPoliceApi.Dtos.Auto;
 using StateTrafficPoliceApi.Dtos.Driver;
+using StateTrafficPoliceApi.IdxDtos;
+using StateTrafficPoliceApi.IdxDtos.AutoHistory;
 using StateTrafficPoliceApi.StfDtos;
 using StateTrafficPoliceApi.StfDtos.Auto;
 using StateTrafficPoliceApi.StfDtos.Driver;
@@ -11,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
 {
-    public partial class ParserService(IMemoryCache cache)
+    public partial class ParserService(IMemoryCache cache, IMapper mapper)
     {
         private readonly HttpClient _httpClient = new();
 
@@ -19,18 +22,22 @@ namespace StateTrafficPoliceApi.Services
 
         #region Auto
 
-        public async Task<StfAutoResponseDTO> CheckAutoHistory(AutoCheckDTO autoCheckDTO)
+        public async Task<AutoHistoryDTO> CheckAutoHistory(AutoCheckDTO autoCheckDTO)
         {
-            return await GetResponse<StfAutoResponseDTO, AutoCheckDTO, AutoResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/register", autoCheckDTO, 
+            var stfDto = await GetResponse<StfAutoResponseDTO, AutoCheckDTO, AutoResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/register", autoCheckDTO, 
                 (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "history"));
+
+            return mapper.Map<AutoHistoryDTO>(stfDto);
         }
 
         #endregion
 
 
-        public async Task<StfDriverResponseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
+        public async Task<DrivingLicenseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
         {
-            return await GetResponse<StfDriverResponseDTO, DrivingLicenseCheckDTO, DrivingLicenseResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", checkDTO, DrivingLicenseResolvedDTO.FromCheck);
+            var stdDto = await GetResponse<StfDriverResponseDTO, DrivingLicenseCheckDTO, DrivingLicenseResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", checkDTO, DrivingLicenseResolvedDTO.FromCheck);
+
+            return mapper.Map<DrivingLicenseDTO>(stdDto);
         }
 
         private async Task SetHeaders()

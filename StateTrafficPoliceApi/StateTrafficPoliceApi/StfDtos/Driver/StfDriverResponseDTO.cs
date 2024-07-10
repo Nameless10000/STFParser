@@ -8,7 +8,7 @@ public class StfDriverResponseDTO
 
     public int Code { get; set; }
 
-    public int count { get; set; }
+    public int Count { get; set; }
 
     public DocDTO Doc { get; set; }
 

@@ -1,9 +1,12 @@
-﻿namespace StateTrafficPoliceApi.Dtos.Driver
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace StateTrafficPoliceApi.Dtos.Driver
 {
     public class DrivingLicenseCheckDTO
     {
-        public string Num { get; set; }
+        public string drivingLicenseNumber { get; set; }
 
-        public string Date { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
+        public string drivingLicenseDate { get; set; }
     }
 }
