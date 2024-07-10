@@ -36,7 +36,7 @@ namespace StateTrafficPoliceApi
                     .WithSimpleSchedule(x =>
                         x.WithIntervalInSeconds(55)
                         .RepeatForever())
-                    .StartNow()
+                    .StartAt(DateTimeOffset.ParseExact("00:00:10", "HH:mm:ss", null))
                     );
             });
 

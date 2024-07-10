@@ -1,4 +1,4 @@
-﻿namespace StateTrafficPoliceApi.Dtos
+﻿namespace StateTrafficPoliceApi.Dtos.Driver
 {
     public class DrivingLicenseCheckDTO
     {

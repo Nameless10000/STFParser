@@ -1,4 +1,4 @@
-﻿namespace StateTrafficPoliceApi.Dtos
+﻿namespace StateTrafficPoliceApi.Dtos.Driver
 {
     public class DrivingLicenseResolvedDTO
     {
@@ -6,9 +6,9 @@
 
         public string Date { get; set; }
 
-        public string CapchaToken { get; set; }
+        public string CaptchaToken { get; set; }
 
-        public string CapchaWord { get; set; }
+        public string CaptchaWord { get; set; }
 
         internal static DrivingLicenseResolvedDTO FromCheck(DrivingLicenseCheckDTO checkDTO, CaptchaDTO capchaDTO)
         {
@@ -16,8 +16,8 @@
             {
                 Num = checkDTO.Num,
                 Date = checkDTO.Date,
-                CapchaToken = capchaDTO.Token,
-                CapchaWord = capchaDTO.CapchaWord
+                CaptchaToken = capchaDTO.Token,
+                CaptchaWord = capchaDTO.CaptchaWord
             };
         }
     }

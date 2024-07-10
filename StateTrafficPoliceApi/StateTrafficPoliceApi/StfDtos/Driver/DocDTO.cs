@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace StateTrafficPoliceApi.StfDtos
+namespace StateTrafficPoliceApi.StfDtos.Driver
 {
     public class DocDTO
     {

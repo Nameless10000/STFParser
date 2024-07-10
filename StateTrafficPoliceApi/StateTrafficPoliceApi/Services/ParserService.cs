@@ -1,6 +1,12 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using StateTrafficPoliceApi.Dtos;
+using StateTrafficPoliceApi.Dtos.Auto;
+using StateTrafficPoliceApi.Dtos.Driver;
 using StateTrafficPoliceApi.StfDtos;
+using StateTrafficPoliceApi.StfDtos.Auto;
+using StateTrafficPoliceApi.StfDtos.Driver;
+using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
@@ -8,6 +14,24 @@ namespace StateTrafficPoliceApi.Services
     public partial class ParserService(IMemoryCache cache)
     {
         private readonly HttpClient _httpClient = new();
+
+        
+
+        #region Auto
+
+        public async Task<StfAutoResponseDTO> CheckAutoHistory(AutoCheckDTO autoCheckDTO)
+        {
+            return await GetResponse<StfAutoResponseDTO, AutoCheckDTO, AutoResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/register", autoCheckDTO, 
+                (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "history"));
+        }
+
+        #endregion
+
+
+        public async Task<StfDriverResponseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
+        {
+            return await GetResponse<StfDriverResponseDTO, DrivingLicenseCheckDTO, DrivingLicenseResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", checkDTO, DrivingLicenseResolvedDTO.FromCheck);
+        }
 
         private async Task SetHeaders()
         {
@@ -23,9 +47,7 @@ namespace StateTrafficPoliceApi.Services
             _httpClient.DefaultRequestHeaders.Add("X-Csrftokensec", tokenValue);
         }
 
-        
-
-        public async Task<StfResponseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
+        private async Task<TValue> GetResponse<TValue, TCheckDTO, TResolvedDTO>(string fetchAddress, TCheckDTO checkDTO, Func<TCheckDTO, CaptchaDTO, TResolvedDTO> getResolvedDto)
         {
             var isSuccessStatusCode = false;
             var response = new HttpResponseMessage();
@@ -37,26 +59,31 @@ namespace StateTrafficPoliceApi.Services
                     await Task.Delay(10000);
 
                 if (!cache.TryGetValue<CaptchaDTO>("captcha", out var resolvedCaphca))
-                    continue;
-
-                var resolvedDto = DrivingLicenseResolvedDTO.FromCheck(checkDTO, resolvedCaphca);
-
-                var content = new Dictionary<string, string>()
                 {
-                    { "date", resolvedDto.Date },
-                    { "num", resolvedDto.Num },
-                    { "captchaWord", resolvedDto.CapchaWord },
-                    { "captchaToken", resolvedDto.CapchaToken },
-                };
+                    await Task.Delay(10000);
+                    continue;
+                }
+
+                var resolvedDto = getResolvedDto(checkDTO, resolvedCaphca);
+
+                var props = resolvedDto
+                    .GetType()
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .ToList();
+
+                var content = new Dictionary<string, string>();
+
+                foreach (var prop in props)
+                    content.Add(prop.Name[0].ToString().ToLower() + prop.Name[1..], prop.GetValue(resolvedDto).ToString());
 
                 await SetHeaders();
-            
-                response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", new FormUrlEncodedContent(content));
+
+                response = await _httpClient.PostAsync(fetchAddress, new FormUrlEncodedContent(content));
                 i++;
-                isSuccessStatusCode = response.IsSuccessStatusCode;
+                isSuccessStatusCode = response.StatusCode == HttpStatusCode.OK;
             }
 
-            return await response.Content.ReadFromJsonAsync<StfResponseDTO>();
+            return await response.Content.ReadFromJsonAsync<TValue>();
         }
 
         [GeneratedRegex("<meta name=\'csrf-token-value\' content=\'(.+)\'/>")]

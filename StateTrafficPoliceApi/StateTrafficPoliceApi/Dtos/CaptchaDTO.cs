@@ -4,7 +4,7 @@ namespace StateTrafficPoliceApi.Dtos
 {
     public class CaptchaDTO : StfCaptchaDTO
     {
-        public string CapchaWord { get; set; }
+        public string CaptchaWord { get; set; }
 
         internal static CaptchaDTO FromStf(StfCaptchaDTO stfCapcha, string capchaWord)
         {
@@ -12,7 +12,7 @@ namespace StateTrafficPoliceApi.Dtos
             {
                 Base64jpg = stfCapcha.Base64jpg,
                 Token = stfCapcha.Token,
-                CapchaWord = capchaWord
+                CaptchaWord = capchaWord
             };
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using StateTrafficPoliceApi.Dtos;
+using StateTrafficPoliceApi.Dtos.Auto;
+using StateTrafficPoliceApi.Dtos.Driver;
 using StateTrafficPoliceApi.Services;
 
 namespace StateTrafficPoliceApi.Controllers
@@ -13,6 +14,12 @@ namespace StateTrafficPoliceApi.Controllers
         public async Task<JsonResult> CheckDrivingLicense([FromBody] DrivingLicenseCheckDTO checkDTO)
         {
             return new(await _parserService.CheckDrivingLicense(checkDTO));
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> CheckAutoHistory([FromBody] AutoCheckDTO checkDTO)
+        {
+            return new(await _parserService.CheckAutoHistory(checkDTO));
         }
     }
 }
