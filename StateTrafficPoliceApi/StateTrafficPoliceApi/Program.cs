@@ -1,6 +1,7 @@
 using Quartz;
 using Quartz.Simpl;
 using Quartz.Spi;
+using StateTrafficPoliceApi.Configured;
 using StateTrafficPoliceApi.Jobs;
 using StateTrafficPoliceApi.Services;
 
@@ -15,6 +16,11 @@ namespace StateTrafficPoliceApi
             // Add services to the container.
 
             builder.Services.AddTransient<ParserService>();
+            builder.Services.AddTransient<FlaskService>();
+
+            var flaskData = builder.Configuration.GetSection("FlaskAPI");
+            builder.Services.Configure<FlaskData>(flaskData);
+
             builder.Services.AddMemoryCache();
             builder.Services.AddQuartz(q =>
             {

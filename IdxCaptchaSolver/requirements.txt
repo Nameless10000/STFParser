@@ -1,0 +1,9 @@
+Flask>=2.2.3
+librosa
+numpy<2.0
+pydub
+scikit-learn==1.2.2
+# gibdd
+opencv-python==4.8.0.74
+tensorflow==2.15.0
+keras==2.15.0

@@ -1,0 +1,10 @@
+# Cache
+__pycache__/
+
+# Environments
+env/
+venv/
+
+# Data
+datas/
+temp/

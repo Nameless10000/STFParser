@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Quartz;
 using StateTrafficPoliceApi.Dtos;
+using StateTrafficPoliceApi.Services;
 using StateTrafficPoliceApi.StfDtos;
 using System.Net.Http;
 
 namespace StateTrafficPoliceApi.Jobs
 {
-    public class CaptchaRenewalJob(IMemoryCache cache) : IJob
+    public class CaptchaRenewalJob(IMemoryCache cache, FlaskService flaskService) : IJob
     {
         private readonly HttpClient _httpClient = new();
 
@@ -20,16 +21,11 @@ namespace StateTrafficPoliceApi.Jobs
         private async Task SolveCapcha()
         {
             var response = await _httpClient.GetAsync("https://check.gibdd.ru/captcha");
-            var capcha = (await response.Content.ReadFromJsonAsync<StfCaptchaDTO>())!;
+            var captcha = (await response.Content.ReadFromJsonAsync<StfCaptchaDTO>())!;
 
-            using var fs = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Gibdd Capcha.jpeg"));
-            fs.Write(capcha.Bytes);
-            fs.Close();
+            var captchaWord = await flaskService.SolveGibddCaptchaAsync(captcha.Bytes);
 
-            Console.WriteLine("Введите решение капчи с рабочего стола (5 цифр)");
-            var capchaWord = Console.ReadLine();
-
-            var solvedCapcha = CaptchaDTO.FromStf(capcha, capchaWord);
+            var solvedCapcha = CaptchaDTO.FromStf(captcha, captchaWord);
 
             cache.Set("captcha", solvedCapcha, new MemoryCacheEntryOptions
             {

@@ -27,25 +27,36 @@ namespace StateTrafficPoliceApi.Services
 
         public async Task<StfResponseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
         {
-            if (!cache.TryGetValue<CaptchaDTO>("captcha", out var resolvedCaphca))
-                throw new Exception("No valid captcha in memory");
+            var isSuccessStatusCode = false;
+            var response = new HttpResponseMessage();
 
-            var resolvedDto = DrivingLicenseResolvedDTO.FromCheck(checkDTO, resolvedCaphca);
-
-            var content = new Dictionary<string, string>()
+            var i = 0;
+            while (!isSuccessStatusCode)
             {
-                { "date", resolvedDto.Date },
-                { "num", resolvedDto.Num },
-                { "captchaWord", resolvedDto.CapchaWord },
-                { "captchaToken", resolvedDto.CapchaToken },
-            };
+                if (i > 0)
+                    await Task.Delay(10000);
 
-            await SetHeaders();
+                if (!cache.TryGetValue<CaptchaDTO>("captcha", out var resolvedCaphca))
+                    continue;
 
-            var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", new FormUrlEncodedContent(content));
-            var stfResponse = await response.Content.ReadFromJsonAsync<StfResponseDTO>();
+                var resolvedDto = DrivingLicenseResolvedDTO.FromCheck(checkDTO, resolvedCaphca);
 
-            return stfResponse;
+                var content = new Dictionary<string, string>()
+                {
+                    { "date", resolvedDto.Date },
+                    { "num", resolvedDto.Num },
+                    { "captchaWord", resolvedDto.CapchaWord },
+                    { "captchaToken", resolvedDto.CapchaToken },
+                };
+
+                await SetHeaders();
+            
+                response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", new FormUrlEncodedContent(content));
+                i++;
+                isSuccessStatusCode = response.IsSuccessStatusCode;
+            }
+
+            return await response.Content.ReadFromJsonAsync<StfResponseDTO>();
         }
 
         [GeneratedRegex("<meta name=\'csrf-token-value\' content=\'(.+)\'/>")]
