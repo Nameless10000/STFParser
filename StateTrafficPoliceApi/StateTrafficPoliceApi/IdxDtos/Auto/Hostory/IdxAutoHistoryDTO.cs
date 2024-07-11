@@ -1,4 +1,4 @@
-﻿namespace StateTrafficPoliceApi.IdxDtos.AutoHistory
+﻿namespace StateTrafficPoliceApi.IdxDtos.Auto.Hostory
 {
     public class IdxAutoHistoryDTO
     {

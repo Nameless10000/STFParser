@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace StateTrafficPoliceApi.StfDtos.Auto
+namespace StateTrafficPoliceApi.StfDtos.Auto.History
 {
-    public class StfAutoRequestResult
+    public class StfAutoHistoryRequestResult
     {
         [JsonPropertyName("vehicle_chassisnumber")]
         public string VehicleChassIsNumber { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace StateTrafficPoliceApi.StfDtos.Auto
+﻿namespace StateTrafficPoliceApi.StfDtos.Auto.History
 {
     public class StfAutoPeriod
     {

@@ -1,12 +1,12 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 
-namespace StateTrafficPoliceApi.StfDtos.Auto
+namespace StateTrafficPoliceApi.StfDtos.Auto.History
 {
-    public class StfAutoResponseDTO
+    public class StfAutoHistoryResponseDTO
     {
         public string RequestTime { get; set; }
 
-        public StfAutoRequestResult RequestResult { get; set; }
+        public StfAutoHistoryRequestResult RequestResult { get; set; }
 
         public string Hostname { get; set; }
 
