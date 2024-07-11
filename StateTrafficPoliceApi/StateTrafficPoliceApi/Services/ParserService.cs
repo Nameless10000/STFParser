@@ -3,13 +3,16 @@ using Microsoft.Extensions.Caching.Memory;
 using StateTrafficPoliceApi.Dtos;
 using StateTrafficPoliceApi.Dtos.Auto;
 using StateTrafficPoliceApi.Dtos.Driver;
+using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
 using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos;
+using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
 using StateTrafficPoliceApi.StfDtos.Driver;
+using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -43,13 +46,45 @@ namespace StateTrafficPoliceApi.Services
 
             return mapper.Map<IdxAutoDtpDTO>(stfDto);
         }
+        
+        public async Task<IdxAutoDcListDTO> CheckAutoDc(AutoCheckDTO autoCheckDTO)
+        {
+            var stfDto = await GetResponse<StfAutoDCResponseDTO, AutoCheckDTO, AutoResolvedDTO>(
+                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/diagnostic", 
+                autoCheckDTO, 
+                (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "diagnostic")
+                );
+
+            var convertedStfDto = new ConvertedAutoDCResponseDTO();
+
+            stfDto.RequestResult.DiagnosticCards[0].PreviousDcs.ForEach(x => x.Vin = stfDto.RequestResult.DiagnosticCards[0].Vin);
+
+            convertedStfDto.List = 
+                [
+                    new StfAutoShortDcDTO() 
+                    {
+                        Vin = stfDto.RequestResult.DiagnosticCards[0].Vin,
+                        DcDate = stfDto.RequestResult.DiagnosticCards[0].DcDate,
+                        DcExpirationDate = stfDto.RequestResult.DiagnosticCards[0].DcExpirationDate,
+                        DcNumber = stfDto.RequestResult.DiagnosticCards[0].DcNumber,
+                        OdometerValue = stfDto.RequestResult.DiagnosticCards[0].OdometerValue
+                    }, 
+                    .. stfDto.RequestResult.DiagnosticCards[0].PreviousDcs 
+                ];
+
+            return mapper.Map<IdxAutoDcListDTO>(convertedStfDto);
+        }
 
         #endregion
 
 
         public async Task<IdxDrivingLicenseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
         {
-            var stdDto = await GetResponse<StfDriverResponseDTO, DrivingLicenseCheckDTO, DrivingLicenseResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", checkDTO, DrivingLicenseResolvedDTO.FromCheck);
+            var stdDto = await GetResponse<StfDriverResponseDTO, DrivingLicenseCheckDTO, DrivingLicenseResolvedDTO>(
+                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", 
+                checkDTO, 
+                DrivingLicenseResolvedDTO.FromCheck
+                );
 
             return mapper.Map<IdxDrivingLicenseDTO>(stdDto);
         }

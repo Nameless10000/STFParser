@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
 using StateTrafficPoliceApi.IdxDtos.Driver;
+using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
 using StateTrafficPoliceApi.StfDtos.Driver;
@@ -68,6 +70,17 @@ public class MapperProfile : Profile
             .ForMember(x => x.Year, opt => opt.MapFrom(xx => xx.VehicleYear))
             .ForMember(x => x.DamageState, opt => opt.MapFrom(xx => xx.VehicleDamageState));
 
+        #endregion
+
+        #region Diagnostic card
+
+        CreateMap<ConvertedAutoDCResponseDTO, IdxAutoDcListDTO>();
+
+        CreateMap<StfAutoShortDcDTO, IdxAutoDcDTO>()
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => xx.DcExpirationDate > DateTime.Now ? "active" : "inactive"))
+            .ForMember(x => x.StartDate, opt => opt.MapFrom(xx => xx.DcDate.ToString("dd.MM.yyyy")))
+            .ForMember(x => x.EndDate, opt => opt.MapFrom(xx => xx.DcExpirationDate.ToString("dd.MM.yyyy")))
+            .ForMember(x => x.Number, opt => opt.MapFrom(xx => xx.DcNumber));
 
         #endregion
 
