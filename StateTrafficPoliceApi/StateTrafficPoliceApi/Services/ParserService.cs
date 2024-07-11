@@ -24,8 +24,11 @@ namespace StateTrafficPoliceApi.Services
 
         public async Task<AutoHistoryDTO> CheckAutoHistory(AutoCheckDTO autoCheckDTO)
         {
-            var stfDto = await GetResponse<StfAutoResponseDTO, AutoCheckDTO, AutoResolvedDTO>("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/register", autoCheckDTO, 
-                (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "history"));
+            var stfDto = await GetResponse<StfAutoResponseDTO, AutoCheckDTO, AutoResolvedDTO>(
+                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/register", 
+                autoCheckDTO, 
+                (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "history")
+                );
 
             return mapper.Map<AutoHistoryDTO>(stfDto);
         }
@@ -39,6 +42,8 @@ namespace StateTrafficPoliceApi.Services
 
             return mapper.Map<DrivingLicenseDTO>(stdDto);
         }
+
+        #region Helpers
 
         private async Task SetHeaders()
         {
@@ -95,5 +100,7 @@ namespace StateTrafficPoliceApi.Services
 
         [GeneratedRegex("<meta name=\'csrf-token-value\' content=\'(.+)\'/>")]
         private static partial Regex CsrfToken();
+
+        #endregion
     }
 }

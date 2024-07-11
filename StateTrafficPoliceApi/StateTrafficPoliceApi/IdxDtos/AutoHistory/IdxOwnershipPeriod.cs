@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.IdxDtos.AutoHistory
 {
-    public class OwnershipPeriod
+    public class IdxOwnershipPeriod
     {
         public string SimplePersonType { get; set; }
 

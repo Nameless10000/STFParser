@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.IdxDtos.AutoHistory
 {
-    public class Vehicle
+    public class IdxVehicle
     {
         public string Vin { get; set; }
 

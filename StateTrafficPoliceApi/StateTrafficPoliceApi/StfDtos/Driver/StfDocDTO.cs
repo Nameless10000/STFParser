@@ -2,7 +2,7 @@
 
 namespace StateTrafficPoliceApi.StfDtos.Driver
 {
-    public class DocDTO
+    public class StfDocDTO
     {
         public DateTime Date { get; set; }
 

@@ -1,12 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace StateTrafficPoliceApi.IdxDtos
+namespace StateTrafficPoliceApi.IdxDtos.Driver
 {
-    public class DrivingLicenseDTO
+    public class IdxDrivingLicenseDTO
     {
-        public string ResultMessage { get; set; }
-
-        public int ResultCode { get; set; }
+        public int Status { get; set; } = 0;
 
         public string PersonBirthDate { get; set; }
 
@@ -18,6 +16,6 @@ namespace StateTrafficPoliceApi.IdxDtos
 
         public string DrivingLicenseCategory { get; set; }
 
-        public List<object> DecisionList { get; set; }
+        public List<IdxDecisionDTO> DecisionList { get; set; }
     }
 }

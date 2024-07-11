@@ -10,9 +10,9 @@ public class StfDriverResponseDTO
 
     public int Count { get; set; }
 
-    public DocDTO Doc { get; set; }
+    public StfDocDTO Doc { get; set; }
 
     public string Message { get; set; }
 
-    public List<object> Decis { get; set; }
+    public List<StfDecisionDTO> Decis { get; set; }
 }

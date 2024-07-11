@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using StateTrafficPoliceApi.IdxDtos;
 using StateTrafficPoliceApi.IdxDtos.AutoHistory;
+using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos.Auto;
 using StateTrafficPoliceApi.StfDtos.Driver;
 
@@ -10,7 +10,9 @@ public class MapperProfile : Profile
 {
     public MapperProfile()
     {
-        CreateMap<StfDriverResponseDTO, DrivingLicenseDTO>()
+        #region Driver
+
+        CreateMap<StfDriverResponseDTO, IdxDrivingLicenseDTO>()
             .ForMember(x => x.ResultMessage, opt => opt.MapFrom(xx => xx.Message))
             .ForMember(x => x.ResultCode, opt => opt.MapFrom(xx => xx.Code))
             .ForMember(x => x.PersonBirthDate, opt => opt.MapFrom(xx => xx.Doc.Bdate.ToString("dd.MM.yyyy")))
@@ -19,6 +21,17 @@ public class MapperProfile : Profile
             .ForMember(x => x.DrivingLicenseExpiryDate, opt => opt.MapFrom(xx => xx.Doc.Srok.ToString("dd.MM.yyyy")))
             .ForMember(x => x.DrivingLicenseCategory, opt => opt.MapFrom(xx => xx.Doc.Cat))
             .ForMember(x => x.DecisionList, opt => opt.MapFrom(xx => xx.Decis));
+
+        CreateMap<StfDecisionDTO, IdxDecisionDTO>()
+            .ForMember(x => x.Date, opt => opt.MapFrom(xx => xx.Date.ToString("dd.MM.yyyy")))
+            .ForMember(x => x.Period, opt => opt.MapFrom(xx => xx.Srok.ToString()))
+            .ForMember(x => x.BirthPlace, opt => opt.MapFrom(xx => xx.BPlace))
+            .ForMember(x => x.RegName, opt => opt.MapFrom(xx => xx.RegionName));
+
+
+        #endregion
+
+        #region Auto
 
         CreateMap<StfAutoResponseDTO, AutoHistoryDTO>()
             .ForMember(x => x.OwnershipPeriods, opt => opt.MapFrom(xx => xx.RequestResult.Periods))
@@ -35,5 +48,7 @@ public class MapperProfile : Profile
             .ForMember(x => x.SimplePersonType, opt => opt.MapFrom(xx => xx.OwnerType))
             .ForMember(x => x.From, opt => opt.MapFrom(xx => xx.StartDate))
             .ForMember(x => x.To, opt => opt.MapFrom(xx => xx.EndDate));
+
+        #endregion
     }
 }
