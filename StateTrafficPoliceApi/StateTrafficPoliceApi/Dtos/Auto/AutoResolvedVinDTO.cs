@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.Dtos.Auto
 {
-    public class AutoResolvedDTO
+    public class AutoResolvedVinDTO
     {
         public string Vin { get; set; }
 
@@ -10,7 +10,7 @@
 
         public string CaptchaWord { get; set; }
 
-        public static AutoResolvedDTO FromCheck(AutoCheckDTO autoCheckDTO, CaptchaDTO captchaDTO, string checkType)
+        public static AutoResolvedVinDTO FromCheck(AutoCheckVinDTO autoCheckDTO, CaptchaDTO captchaDTO, string checkType)
         {
             return new()
             {

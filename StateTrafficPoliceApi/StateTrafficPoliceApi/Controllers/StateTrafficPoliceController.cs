@@ -17,21 +17,27 @@ namespace StateTrafficPoliceApi.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> CheckAutoHistory([FromBody] AutoCheckDTO checkDTO)
+        public async Task<JsonResult> CheckAutoHistory([FromBody] AutoCheckVinDTO checkDTO)
         {
             return new(await _parserService.CheckAutoHistory(checkDTO));
         }
 
         [HttpPost]
-        public async Task<JsonResult> CheckAutoDtp([FromBody] AutoCheckDTO checkDTO)
+        public async Task<JsonResult> CheckAutoDtp([FromBody] AutoCheckVinDTO checkDTO)
         {
             return new(await _parserService.CheckAutoDtp(checkDTO));
         }
 
         [HttpPost]
-        public async Task<JsonResult> CheckAutoDc([FromBody] AutoCheckDTO checkDTO)
+        public async Task<JsonResult> CheckAutoDc([FromBody] AutoCheckVinDTO checkDTO)
         {
             return new(await _parserService.CheckAutoDc(checkDTO));
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> CheckAutoFines([FromBody] AutoCheckGrzDTO checkDTO)
+        {
+            return new(await _parserService.CheckAutoFines(checkDTO));
         }
     }
 }

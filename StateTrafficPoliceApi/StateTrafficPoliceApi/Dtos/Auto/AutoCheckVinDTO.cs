@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.Dtos.Auto
 {
-    public class AutoCheckDTO
+    public class AutoCheckVinDTO
     {
         public string Vin { get; set; }
     }

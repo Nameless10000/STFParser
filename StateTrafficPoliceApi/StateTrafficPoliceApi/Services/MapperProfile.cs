@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
+using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
 using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
+using StateTrafficPoliceApi.StfDtos.Auto.Fines;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
 using StateTrafficPoliceApi.StfDtos.Driver;
+using System.Globalization;
 
 namespace StateTrafficPoliceApi.Services;
 
@@ -81,6 +84,19 @@ public class MapperProfile : Profile
             .ForMember(x => x.StartDate, opt => opt.MapFrom(xx => xx.DcDate.ToString("dd.MM.yyyy")))
             .ForMember(x => x.EndDate, opt => opt.MapFrom(xx => xx.DcExpirationDate.ToString("dd.MM.yyyy")))
             .ForMember(x => x.Number, opt => opt.MapFrom(xx => xx.DcNumber));
+
+        #endregion
+
+        #region Fines
+
+        CreateMap<StfAutoFinesResponseDTO, IdxAutoFinesListDTO>()
+            .ForMember(x => x.FinesList, opt => opt.MapFrom(xx => xx.Data));
+
+        CreateMap<StfAutoFinesDataDTO, IdxAutoFineDTO>()
+            .ForMember(x => x.DateDecis, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDecis.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):dd.MM.yyyy} {xx.DateDecis.Split(" ", StringSplitOptions.None)[1]}"))
+            .ForMember(x => x.DateDiscount, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDiscount.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):dd.MM.yyyy} {xx.DateDiscount.Split(" ", StringSplitOptions.None)[1]}"))
+            .ForMember(x => x.DatePost, opt => opt.MapFrom(xx => xx.DatePost.ToString("dd.MM.yyyy")))
+            .ForMember(x => x.DivisionName, opt => opt.MapFrom(xx => xx.Divisions[xx.Division.ToString()]["name"].ToString()));
 
         #endregion
 

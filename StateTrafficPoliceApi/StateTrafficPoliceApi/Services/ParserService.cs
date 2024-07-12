@@ -1,20 +1,25 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using StateTrafficPoliceApi.Dtos;
 using StateTrafficPoliceApi.Dtos.Auto;
 using StateTrafficPoliceApi.Dtos.Driver;
 using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
+using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
 using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos;
 using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
+using StateTrafficPoliceApi.StfDtos.Auto.Fines;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
 using StateTrafficPoliceApi.StfDtos.Driver;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
@@ -25,34 +30,46 @@ namespace StateTrafficPoliceApi.Services
 
         #region Auto
 
-        public async Task<IdxAutoHistoryDTO> CheckAutoHistory(AutoCheckDTO autoCheckDTO)
+        public async Task<IdxAutoFinesListDTO> CheckAutoFines(AutoCheckGrzDTO autoCheckDTO)
         {
-            var stfDto = await GetResponse<StfAutoHistoryResponseDTO, AutoCheckDTO, AutoResolvedDTO>(
+            var stfDto = await GetResponse<StfAutoFinesResponseDTO, AutoCheckGrzDTO, AutoResolvedGrzDTO>(
+                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/fines",
+                autoCheckDTO,
+                AutoResolvedGrzDTO.FromCheck);
+
+            stfDto.Data.ForEach(x => x.Divisions = stfDto.Divisions);
+
+            return mapper.Map<IdxAutoFinesListDTO>(stfDto);
+        }
+
+        public async Task<IdxAutoHistoryDTO> CheckAutoHistory(AutoCheckVinDTO autoCheckDTO)
+        {
+            var stfDto = await GetResponse<StfAutoHistoryResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
                 "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/register", 
                 autoCheckDTO, 
-                (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "history")
+                (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "history")
                 );
 
             return mapper.Map<IdxAutoHistoryDTO>(stfDto);
         }
         
-        public async Task<IdxAutoDtpDTO> CheckAutoDtp(AutoCheckDTO autoCheckDTO)
+        public async Task<IdxAutoDtpDTO> CheckAutoDtp(AutoCheckVinDTO autoCheckDTO)
         {
-            var stfDto = await GetResponse<StfAutoDTPResponseDTO, AutoCheckDTO, AutoResolvedDTO>(
+            var stfDto = await GetResponse<StfAutoDTPResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
                 "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/dtp", 
                 autoCheckDTO, 
-                (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "aiusdtp")
+                (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "aiusdtp")
                 );
 
             return mapper.Map<IdxAutoDtpDTO>(stfDto);
         }
         
-        public async Task<IdxAutoDcListDTO> CheckAutoDc(AutoCheckDTO autoCheckDTO)
+        public async Task<IdxAutoDcListDTO> CheckAutoDc(AutoCheckVinDTO autoCheckDTO)
         {
-            var stfDto = await GetResponse<StfAutoDCResponseDTO, AutoCheckDTO, AutoResolvedDTO>(
+            var stfDto = await GetResponse<StfAutoDCResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
                 "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/diagnostic", 
                 autoCheckDTO, 
-                (checkDto, captcha) => AutoResolvedDTO.FromCheck(checkDto, captcha, "diagnostic")
+                (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "diagnostic")
                 );
 
             var convertedStfDto = new ConvertedAutoDCResponseDTO();
