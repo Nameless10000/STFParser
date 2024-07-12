@@ -3,11 +3,13 @@ using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
+using StateTrafficPoliceApi.IdxDtos.Auto.Wanted;
 using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
 using StateTrafficPoliceApi.StfDtos.Auto.Fines;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
+using StateTrafficPoliceApi.StfDtos.Auto.Wanted;
 using StateTrafficPoliceApi.StfDtos.Driver;
 using System.Globalization;
 
@@ -97,6 +99,19 @@ public class MapperProfile : Profile
             .ForMember(x => x.DateDiscount, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDiscount.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):dd.MM.yyyy} {xx.DateDiscount.Split(" ", StringSplitOptions.None)[1]}"))
             .ForMember(x => x.DatePost, opt => opt.MapFrom(xx => xx.DatePost.ToString("dd.MM.yyyy")))
             .ForMember(x => x.DivisionName, opt => opt.MapFrom(xx => xx.Divisions[xx.Division.ToString()]["name"].ToString()));
+
+        #endregion
+
+        #region Wanted
+
+        CreateMap<StfAutoWantedResponseDTO, IdxAutoWantedListDTO>()
+            .ForMember(x => x.WantedList, opt => opt.MapFrom(xx => xx.RequestResult.Records))
+            .ForMember(x => x.Status, opt => opt.Ignore());
+
+        CreateMap<StfAutoWantedDTO, IdxAutoWantedDTO>()
+            .ForMember(x => x.Year, opt => opt.MapFrom(xx => xx.VehicleYear))
+            .ForMember(x => x.Region, opt => opt.MapFrom(xx => xx.RegionIniciator))
+            .ForMember(x => x.WantedSince, opt => opt.MapFrom(xx => xx.PermanentAccountingDate));
 
         #endregion
 

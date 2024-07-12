@@ -8,12 +8,14 @@ using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
+using StateTrafficPoliceApi.IdxDtos.Auto.Wanted;
 using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos;
 using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
 using StateTrafficPoliceApi.StfDtos.Auto.Fines;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
+using StateTrafficPoliceApi.StfDtos.Auto.Wanted;
 using StateTrafficPoliceApi.StfDtos.Driver;
 using System;
 using System.Collections.Generic;
@@ -29,6 +31,17 @@ namespace StateTrafficPoliceApi.Services
         private readonly HttpClient _httpClient = new();
 
         #region Auto
+
+        public async Task<IdxAutoWantedListDTO> CheckAutoWanted(AutoCheckVinDTO autoCheckDTO)
+        {
+            var stfDto = await GetResponse<StfAutoWantedResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
+                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/wanted",
+                autoCheckDTO,
+                (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "wanted")
+                );
+
+            return mapper.Map<IdxAutoWantedListDTO>(stfDto);
+        }
 
         public async Task<IdxAutoFinesListDTO> CheckAutoFines(AutoCheckGrzDTO autoCheckDTO)
         {
