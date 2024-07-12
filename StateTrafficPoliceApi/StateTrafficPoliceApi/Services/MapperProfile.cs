@@ -3,12 +3,14 @@ using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
+using StateTrafficPoliceApi.IdxDtos.Auto.Restrict;
 using StateTrafficPoliceApi.IdxDtos.Auto.Wanted;
 using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
 using StateTrafficPoliceApi.StfDtos.Auto.Fines;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
+using StateTrafficPoliceApi.StfDtos.Auto.Restrict;
 using StateTrafficPoliceApi.StfDtos.Auto.Wanted;
 using StateTrafficPoliceApi.StfDtos.Driver;
 using System.Globalization;
@@ -112,6 +114,22 @@ public class MapperProfile : Profile
             .ForMember(x => x.Year, opt => opt.MapFrom(xx => xx.VehicleYear))
             .ForMember(x => x.Region, opt => opt.MapFrom(xx => xx.RegionIniciator))
             .ForMember(x => x.WantedSince, opt => opt.MapFrom(xx => xx.PermanentAccountingDate));
+
+        #endregion
+
+        #region Restrict
+
+        CreateMap<StfAutoRestrictResponseDTO, IdxAutoRestrictListDTO>()
+            .ForMember(x => x.RestrictList, opt => opt.MapFrom(xx => xx.RequestResult.Records))
+            .ForMember(x => x.Status, opt => opt.Ignore());
+
+        CreateMap<StfAutoRestrictDTO, IdxAutoRestrictDTO>()
+            .ForMember(x => x.Model, opt => opt.MapFrom(xx => xx.Tsmodel))
+            .ForMember(x => x.Year, opt => opt.MapFrom(xx => xx.Tsyear))
+            .ForMember(x => x.RestrictCause, opt => opt.MapFrom(xx => xx.OsnOgr))
+            .ForMember(x => x.RestrictPhone, opt => opt.MapFrom(xx => xx.Phone))
+            .ForMember(x => x.RestrictDate, opt => opt.MapFrom(xx => xx.Dateogr))
+            .ForMember(x => x.RestrictRegion, opt => opt.MapFrom(xx => xx.Regname));
 
         #endregion
 

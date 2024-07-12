@@ -45,5 +45,11 @@ namespace StateTrafficPoliceApi.Controllers
         {
             return new(await _parserService.CheckAutoWanted(checkDTO));
         }
+
+        [HttpPost]
+        public async Task<JsonResult> CheckAutoRestrict([FromBody] AutoCheckVinDTO checkDTO)
+        {
+            return new(await _parserService.CheckAutoRestrict(checkDTO));
+        }
     }
 }

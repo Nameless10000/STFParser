@@ -8,6 +8,7 @@ using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
 using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
+using StateTrafficPoliceApi.IdxDtos.Auto.Restrict;
 using StateTrafficPoliceApi.IdxDtos.Auto.Wanted;
 using StateTrafficPoliceApi.IdxDtos.Driver;
 using StateTrafficPoliceApi.StfDtos;
@@ -15,6 +16,7 @@ using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
 using StateTrafficPoliceApi.StfDtos.Auto.Fines;
 using StateTrafficPoliceApi.StfDtos.Auto.History;
+using StateTrafficPoliceApi.StfDtos.Auto.Restrict;
 using StateTrafficPoliceApi.StfDtos.Auto.Wanted;
 using StateTrafficPoliceApi.StfDtos.Driver;
 using System;
@@ -31,6 +33,17 @@ namespace StateTrafficPoliceApi.Services
         private readonly HttpClient _httpClient = new();
 
         #region Auto
+
+        public async Task<IdxAutoRestrictListDTO> CheckAutoRestrict(AutoCheckVinDTO autoCheckDTO)
+        {
+            var stfDto = await GetResponse<StfAutoRestrictResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
+                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/restrict",
+                autoCheckDTO,
+                (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "restricted")
+                );
+
+            return mapper.Map<IdxAutoRestrictListDTO>(stfDto);
+        }
 
         public async Task<IdxAutoWantedListDTO> CheckAutoWanted(AutoCheckVinDTO autoCheckDTO)
         {
