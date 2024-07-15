@@ -20,7 +20,7 @@ namespace StateTrafficPoliceApi.Services
         public DbSet<StfWantedResponse> StfWantedResponses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+        {            
             base.OnModelCreating(modelBuilder);
         }
     }

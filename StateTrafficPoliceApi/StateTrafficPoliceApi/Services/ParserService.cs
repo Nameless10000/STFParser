@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Quartz;
+using StateTrafficPoliceApi.DbEntities;
 using StateTrafficPoliceApi.Dtos;
 using StateTrafficPoliceApi.Dtos.Auto;
 using StateTrafficPoliceApi.Dtos.Driver;
@@ -20,6 +21,7 @@ using StateTrafficPoliceApi.StfDtos.Auto.History;
 using StateTrafficPoliceApi.StfDtos.Auto.Restrict;
 using StateTrafficPoliceApi.StfDtos.Auto.Wanted;
 using StateTrafficPoliceApi.StfDtos.Driver;
+using StateTrafficPoliceApi.DbEntities;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -29,7 +31,7 @@ using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
 {
-    public partial class ParserService(IMemoryCache cache, IMapper mapper, ISchedulerFactory schedulerFactory)
+    public partial class ParserService(IMemoryCache cache, IMapper mapper, ISchedulerFactory schedulerFactory, StfDbContext dbContext)
     {
         private readonly HttpClient _httpClient = new();
 
@@ -152,6 +154,7 @@ namespace StateTrafficPoliceApi.Services
         private async Task<TValue> GetResponse<TValue, TCheckDTO, TResolvedDTO>(string fetchAddress, TCheckDTO checkDTO, Func<TCheckDTO, CaptchaDTO, TResolvedDTO> getResolvedDto) where TValue : AbstractResponseDTO
         {
             var responseResult = default(TValue);
+            var jsonData = "";
             while (responseResult == null)
             {
 
@@ -181,7 +184,7 @@ namespace StateTrafficPoliceApi.Services
                 var response = await _httpClient.PostAsync(fetchAddress, new FormUrlEncodedContent(content));
 
                 responseResult = await response.Content.ReadFromJsonAsync<TValue>();
-
+                jsonData = await response.Content.ReadAsStringAsync();
                 if (responseResult.Message == "Проверка CAPTCHA не была пройдена из-за неверного введенного значения.")
                 {
                     var scheduler = await schedulerFactory.GetScheduler();
@@ -190,7 +193,90 @@ namespace StateTrafficPoliceApi.Services
                 }
             }
 
+            await LogResponse<TValue, TCheckDTO>(jsonData, checkDTO);
+
             return responseResult;
+        }
+
+        private async Task LogResponse<TValue, TCheckDTO>(string jsonData, TCheckDTO checkDTO)
+        {
+            if (typeof(TValue) == typeof(StfDriverResponseDTO))
+            {
+                var log = new StfDriverLicenseResponse
+                {
+                    CreatedAt = DateTime.Now,
+                    Data = jsonData,
+                    drivingLicenseDate = (checkDTO as DrivingLicenseCheckDTO).drivingLicenseDate,
+                    DrivingLicenseNumber = (checkDTO as DrivingLicenseCheckDTO).drivingLicenseNumber,
+                };
+
+                await dbContext.StfDriverLicenseResponses.AddAsync(log);
+            } else if (typeof(TValue) == typeof(StfAutoDCResponseDTO))
+            {
+                var log = new StfDiagnosticCardResponse
+                {
+                    CreatedAt = DateTime.Now,
+                    Data = jsonData,
+                    Vin = (checkDTO as AutoCheckVinDTO).Vin,
+                };
+
+                await dbContext.DiagnosticCardResponses.AddAsync(log);
+            } else if (typeof(TValue) == typeof(StfAutoDTPResponseDTO))
+            {
+                var log = new StfDtpResponse
+                {
+                    CreatedAt = DateTime.Now,
+                    Data = jsonData,
+                    Vin = (checkDTO as AutoCheckVinDTO).Vin,
+                };
+
+                await dbContext.StfDtpResponses.AddAsync(log);
+            } else if (typeof(TValue) == typeof(StfAutoWantedResponseDTO))
+            {
+                var log = new StfWantedResponse
+                {
+                    CreatedAt = DateTime.Now,
+                    Data = jsonData,
+                    Vin = (checkDTO as AutoCheckVinDTO).Vin,
+                };
+
+                await dbContext.StfWantedResponses.AddAsync(log);
+            } else if (typeof(TValue) == typeof(StfAutoRestrictResponseDTO))
+            {
+                var log = new StfRestrictResponse
+                {
+                    CreatedAt = DateTime.Now,
+                    Data = jsonData,
+                    Vin = (checkDTO as AutoCheckVinDTO).Vin,
+                };
+
+                await dbContext.StfRestrictResponse.AddAsync(log);
+            }else if (typeof(TValue) == typeof(StfAutoHistoryResponseDTO))
+            {
+                var log = new StfHistoryResponse
+                {
+                    CreatedAt = DateTime.Now,
+                    Data = jsonData,
+                    Vin = (checkDTO as AutoCheckVinDTO).Vin,
+                };
+
+                await dbContext.StfHistoryResponses.AddAsync(log);
+            }else if (typeof(TValue) == typeof(StfAutoFinesResponseDTO))
+            {
+                var log = new StfFinesResponse
+                {
+                    CreatedAt = DateTime.Now,
+                    Data = jsonData,
+                    Sts = (checkDTO as AutoCheckGrzDTO).Sts,
+                    Gosnomer = (checkDTO as AutoCheckGrzDTO).Gosnomer,
+                };
+
+                await dbContext.StfFinesResponses.AddAsync(log);
+            }
+
+            await dbContext.SaveChangesAsync();
+
+            await Console.Out.WriteLineAsync("Лог записан в БД");
         }
 
         [GeneratedRegex("<meta name=\'csrf-token-value\' content=\'(.+)\'/>")]

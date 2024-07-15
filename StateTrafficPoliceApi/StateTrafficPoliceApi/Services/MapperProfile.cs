@@ -24,14 +24,14 @@ public class MapperProfile : Profile
         #region Driver
 
         CreateMap<StfDriverResponseDTO, IdxDrivingLicenseDTO>()
-            .ForMember(x => x.PersonBirthDate, opt => opt.MapFrom(xx => xx.Doc.Bdate.ToString("d")))
+            .ForMember(x => x.PersonBirthDate, opt => opt.MapFrom(xx => xx.Doc.Bdate.ToString("dd.MM.yyyy")))
             .ForMember(x => x.DrivingLicenseNumber, opt => opt.MapFrom(xx => xx.Doc.Num))
             .ForMember(x => x.DrivingLicenseIssueDate, opt => opt.MapFrom(xx => xx.RequestTime.Split(" ", StringSplitOptions.None)[0]))
-            .ForMember(x => x.DrivingLicenseExpiryDate, opt => opt.MapFrom(xx => xx.Doc.Srok.ToString("d")))
+            .ForMember(x => x.DrivingLicenseExpiryDate, opt => opt.MapFrom(xx => xx.Doc.Srok.ToString("dd.MM.yyyy")))
             .ForMember(x => x.DrivingLicenseCategory, opt => opt.MapFrom(xx => xx.Doc.Cat))
             .ForMember(x => x.DecisionList, opt => opt.MapFrom(xx => xx.Decis))
-            .ForMember(x => x.Wanted, opt => opt.MapFrom(xx => xx.Wanted != null ? $"Документ не действителен и разыскивается с {xx.Wanted.DateWanted:d}" : ""))
-            .ForMember(x => x.Description, opt => opt.MapFrom(xx => xx.Doc.StKart != "T" ? "Недействителен" : "Действует"));
+            .ForMember(x => x.Wanted, opt => opt.MapFrom(xx => xx.Wanted != null ? $"Документ не действителен и разыскивается с {xx.Wanted.DateWanted:dd.MM.yyyy}" : ""))
+            .ForMember(x => x.Description, opt => opt.MapFrom(xx => xx.Doc.StKart != "T" && xx.Doc.StKart != "Т" ? "Недействителен" : "Действует"));
 
         CreateMap<StfDecisionDTO, IdxDecisionDTO>()
             .ForMember(x => x.Date, opt => opt.MapFrom(xx => xx.Date.ToString("d")))
@@ -86,8 +86,8 @@ public class MapperProfile : Profile
 
         CreateMap<StfAutoShortDcDTO, IdxAutoDcDTO>()
             .ForMember(x => x.Status, opt => opt.MapFrom(xx => xx.DcExpirationDate > DateTime.Now ? "active" : "inactive"))
-            .ForMember(x => x.StartDate, opt => opt.MapFrom(xx => xx.DcDate.ToString("d")))
-            .ForMember(x => x.EndDate, opt => opt.MapFrom(xx => xx.DcExpirationDate.ToString("d")))
+            .ForMember(x => x.StartDate, opt => opt.MapFrom(xx => xx.DcDate.ToString("dd.MM.yyyy")))
+            .ForMember(x => x.EndDate, opt => opt.MapFrom(xx => xx.DcExpirationDate.ToString("dd.MM.yyyy")))
             .ForMember(x => x.Number, opt => opt.MapFrom(xx => xx.DcNumber));
 
         #endregion
@@ -100,7 +100,7 @@ public class MapperProfile : Profile
         CreateMap<StfAutoFinesDataDTO, IdxAutoFineDTO>()
             .ForMember(x => x.DateDecis, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDecis.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):d} {xx.DateDecis.Split(" ", StringSplitOptions.None)[1]}"))
             .ForMember(x => x.DateDiscount, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDiscount.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):d} {xx.DateDiscount.Split(" ", StringSplitOptions.None)[1]}"))
-            .ForMember(x => x.DatePost, opt => opt.MapFrom(xx => xx.DatePost.ToString("d")))
+            .ForMember(x => x.DatePost, opt => opt.MapFrom(xx => xx.DatePost.ToString("dd.MM.yyyy")))
             .ForMember(x => x.DivisionName, opt => opt.MapFrom(xx => xx.Divisions[xx.Division.ToString()]["name"].ToString()));
 
         #endregion
