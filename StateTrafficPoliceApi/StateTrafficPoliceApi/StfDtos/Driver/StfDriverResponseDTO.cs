@@ -10,6 +10,8 @@ public class StfDriverResponseDTO : AbstractResponseDTO
 
     public int Count { get; set; }
 
+    public StfDriverWanted? Wanted { get; set; }
+
     public StfDocDTO Doc { get; set; }
 
     public List<StfDecisionDTO> Decis { get; set; }
