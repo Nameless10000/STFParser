@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Quartz.Simpl;
 using Quartz.Spi;
@@ -15,6 +16,9 @@ namespace StateTrafficPoliceApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            var connString = builder.Configuration.GetConnectionString("StfLoggDb");
+            builder.Services.AddDbContext<StfDbContext>(opt => opt.UseMySql(connString, new MySqlServerVersion(new Version(10, 4, 13))));
 
             var mapper = new MapperConfiguration(mc => mc.AddProfile<MapperProfile>())
                 .CreateMapper();

@@ -1,4 +1,4 @@
-﻿namespace StateTrafficPoliceApi.IdxDtos.Auto.Hostory
+﻿namespace StateTrafficPoliceApi.IdxDtos.Auto.History
 {
     public class IdxOwnershipPeriod
     {

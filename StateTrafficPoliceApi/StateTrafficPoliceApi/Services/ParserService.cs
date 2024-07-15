@@ -8,7 +8,7 @@ using StateTrafficPoliceApi.Dtos.Driver;
 using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
-using StateTrafficPoliceApi.IdxDtos.Auto.Hostory;
+using StateTrafficPoliceApi.IdxDtos.Auto.History;
 using StateTrafficPoliceApi.IdxDtos.Auto.Restrict;
 using StateTrafficPoliceApi.IdxDtos.Auto.Wanted;
 using StateTrafficPoliceApi.IdxDtos.Driver;
