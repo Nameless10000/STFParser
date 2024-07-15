@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
 using Quartz;
 using StateTrafficPoliceApi.DbEntities;
 using StateTrafficPoliceApi.Dtos;
@@ -21,12 +20,7 @@ using StateTrafficPoliceApi.StfDtos.Auto.History;
 using StateTrafficPoliceApi.StfDtos.Auto.Restrict;
 using StateTrafficPoliceApi.StfDtos.Auto.Wanted;
 using StateTrafficPoliceApi.StfDtos.Driver;
-using StateTrafficPoliceApi.DbEntities;
-using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Reflection;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
@@ -35,12 +29,14 @@ namespace StateTrafficPoliceApi.Services
     {
         private readonly HttpClient _httpClient = new();
 
+        private const string _host = "https://xn--b1afk4ade.xn--90adear.xn--p1ai";
+
         #region Auto
 
         public async Task<IdxAutoRestrictListDTO> CheckAutoRestrict(AutoCheckVinDTO autoCheckDTO)
         {
             var stfDto = await GetResponse<StfAutoRestrictResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
-                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/restrict",
+                $"{_host}/proxy/check/auto/restrict",
                 autoCheckDTO,
                 (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "restricted")
                 );
@@ -51,7 +47,7 @@ namespace StateTrafficPoliceApi.Services
         public async Task<IdxAutoWantedListDTO> CheckAutoWanted(AutoCheckVinDTO autoCheckDTO)
         {
             var stfDto = await GetResponse<StfAutoWantedResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
-                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/wanted",
+                $"{_host}/proxy/check/auto/wanted",
                 autoCheckDTO,
                 (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "wanted")
                 );
@@ -62,7 +58,7 @@ namespace StateTrafficPoliceApi.Services
         public async Task<IdxAutoFinesListDTO> CheckAutoFines(AutoCheckGrzDTO autoCheckDTO)
         {
             var stfDto = await GetResponse<StfAutoFinesResponseDTO, AutoCheckGrzDTO, AutoResolvedGrzDTO>(
-                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/fines",
+                $"{_host}/proxy/check/fines",
                 autoCheckDTO,
                 AutoResolvedGrzDTO.FromCheck);
 
@@ -87,7 +83,7 @@ namespace StateTrafficPoliceApi.Services
                     { "post", data.NumPost }
                 };
 
-                var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/fines/pics", new FormUrlEncodedContent(content));
+                var response = await _httpClient.PostAsync($"{_host}/proxy/check/fines/pics", new FormUrlEncodedContent(content));
                 var request = await response.Content.ReadFromJsonAsync<StfPhotoesResponseDTO>();
 
                 if (request != null)
@@ -98,30 +94,30 @@ namespace StateTrafficPoliceApi.Services
         public async Task<IdxAutoHistoryDTO> CheckAutoHistory(AutoCheckVinDTO autoCheckDTO)
         {
             var stfDto = await GetResponse<StfAutoHistoryResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
-                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/register", 
-                autoCheckDTO, 
+                $"{_host}/proxy/check/auto/register",
+                autoCheckDTO,
                 (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "history")
                 );
 
             return mapper.Map<IdxAutoHistoryDTO>(stfDto);
         }
-        
+
         public async Task<IdxAutoDtpDTO> CheckAutoDtp(AutoCheckVinDTO autoCheckDTO)
         {
             var stfDto = await GetResponse<StfAutoDTPResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
-                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/dtp", 
-                autoCheckDTO, 
+                $"{_host}/proxy/check/auto/dtp",
+                autoCheckDTO,
                 (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "aiusdtp")
                 );
 
             return mapper.Map<IdxAutoDtpDTO>(stfDto);
         }
-        
+
         public async Task<IdxAutoDcListDTO> CheckAutoDc(AutoCheckVinDTO autoCheckDTO)
         {
             var stfDto = await GetResponse<StfAutoDCResponseDTO, AutoCheckVinDTO, AutoResolvedVinDTO>(
-                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/auto/diagnostic", 
-                autoCheckDTO, 
+                $"{_host}/proxy/check/auto/diagnostic",
+                autoCheckDTO,
                 (checkDto, captcha) => AutoResolvedVinDTO.FromCheck(checkDto, captcha, "diagnostic")
                 );
 
@@ -129,17 +125,17 @@ namespace StateTrafficPoliceApi.Services
 
             stfDto.RequestResult.DiagnosticCards[0].PreviousDcs.ForEach(x => x.Vin = stfDto.RequestResult.DiagnosticCards[0].Vin);
 
-            convertedStfDto.List = 
+            convertedStfDto.List =
                 [
-                    new StfAutoShortDcDTO() 
+                    new StfAutoShortDcDTO()
                     {
                         Vin = stfDto.RequestResult.DiagnosticCards[0].Vin,
                         DcDate = stfDto.RequestResult.DiagnosticCards[0].DcDate,
                         DcExpirationDate = stfDto.RequestResult.DiagnosticCards[0].DcExpirationDate,
                         DcNumber = stfDto.RequestResult.DiagnosticCards[0].DcNumber,
                         OdometerValue = stfDto.RequestResult.DiagnosticCards[0].OdometerValue
-                    }, 
-                    .. stfDto.RequestResult.DiagnosticCards[0].PreviousDcs 
+                    },
+                    .. stfDto.RequestResult.DiagnosticCards[0].PreviousDcs
                 ];
 
             return mapper.Map<IdxAutoDcListDTO>(convertedStfDto);
@@ -151,8 +147,8 @@ namespace StateTrafficPoliceApi.Services
         public async Task<IdxDrivingLicenseDTO> CheckDrivingLicense(DrivingLicenseCheckDTO checkDTO)
         {
             var stdDto = await GetResponse<StfDriverResponseDTO, DrivingLicenseCheckDTO, DrivingLicenseResolvedDTO>(
-                "https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/driver", 
-                checkDTO, 
+                $"{_host}/proxy/check/driver",
+                checkDTO,
                 DrivingLicenseResolvedDTO.FromCheck
                 );
 
@@ -163,7 +159,7 @@ namespace StateTrafficPoliceApi.Services
 
         private async Task SetHeaders()
         {
-            var response = await _httpClient.GetAsync("https://гибдд.рф/check/driver");
+            var response = await _httpClient.GetAsync("https://госавтоинспекция.рф/check/driver");
             var content = await response.Content.ReadAsStringAsync();
 
             var match = CsrfToken().Match(content);
@@ -235,7 +231,8 @@ namespace StateTrafficPoliceApi.Services
                 };
 
                 await dbContext.StfDriverLicenseResponses.AddAsync(log);
-            } else if (typeof(TValue) == typeof(StfAutoDCResponseDTO))
+            }
+            else if (typeof(TValue) == typeof(StfAutoDCResponseDTO))
             {
                 var log = new StfDiagnosticCardResponse
                 {
@@ -245,7 +242,8 @@ namespace StateTrafficPoliceApi.Services
                 };
 
                 await dbContext.DiagnosticCardResponses.AddAsync(log);
-            } else if (typeof(TValue) == typeof(StfAutoDTPResponseDTO))
+            }
+            else if (typeof(TValue) == typeof(StfAutoDTPResponseDTO))
             {
                 var log = new StfDtpResponse
                 {
@@ -255,7 +253,8 @@ namespace StateTrafficPoliceApi.Services
                 };
 
                 await dbContext.StfDtpResponses.AddAsync(log);
-            } else if (typeof(TValue) == typeof(StfAutoWantedResponseDTO))
+            }
+            else if (typeof(TValue) == typeof(StfAutoWantedResponseDTO))
             {
                 var log = new StfWantedResponse
                 {
@@ -265,7 +264,8 @@ namespace StateTrafficPoliceApi.Services
                 };
 
                 await dbContext.StfWantedResponses.AddAsync(log);
-            } else if (typeof(TValue) == typeof(StfAutoRestrictResponseDTO))
+            }
+            else if (typeof(TValue) == typeof(StfAutoRestrictResponseDTO))
             {
                 var log = new StfRestrictResponse
                 {
@@ -275,7 +275,8 @@ namespace StateTrafficPoliceApi.Services
                 };
 
                 await dbContext.StfRestrictResponse.AddAsync(log);
-            }else if (typeof(TValue) == typeof(StfAutoHistoryResponseDTO))
+            }
+            else if (typeof(TValue) == typeof(StfAutoHistoryResponseDTO))
             {
                 var log = new StfHistoryResponse
                 {
@@ -285,7 +286,8 @@ namespace StateTrafficPoliceApi.Services
                 };
 
                 await dbContext.StfHistoryResponses.AddAsync(log);
-            }else if (typeof(TValue) == typeof(StfAutoFinesResponseDTO))
+            }
+            else if (typeof(TValue) == typeof(StfAutoFinesResponseDTO))
             {
                 var log = new StfFinesResponse
                 {
