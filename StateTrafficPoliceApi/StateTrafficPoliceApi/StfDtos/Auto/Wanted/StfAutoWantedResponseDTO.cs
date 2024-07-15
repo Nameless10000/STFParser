@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.StfDtos.Auto.Wanted
 {
-    public class StfAutoWantedResponseDTO
+    public class StfAutoWantedResponseDTO : AbstractResponseDTO
     {
         public string RequestTime { get; set; }
 

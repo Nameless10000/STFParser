@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.StfDtos.Driver;
 
-public class StfDriverResponseDTO
+public class StfDriverResponseDTO : AbstractResponseDTO
 {
     public string RequestTime { get; set; }
 
@@ -11,8 +11,6 @@ public class StfDriverResponseDTO
     public int Count { get; set; }
 
     public StfDocDTO Doc { get; set; }
-
-    public string Message { get; set; }
 
     public List<StfDecisionDTO> Decis { get; set; }
 }

@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 
 namespace StateTrafficPoliceApi.StfDtos.Auto.Fines
 {
-    public class StfAutoFinesResponseDTO
+    public class StfAutoFinesResponseDTO : AbstractResponseDTO
     {
         public int DurationReg { get; set; }
 
@@ -16,8 +16,6 @@ namespace StateTrafficPoliceApi.StfDtos.Auto.Fines
         public DateTime EndDate { get; set; }
 
         public string CafapPicsToken { get; set; }
-
-        public string Message { get; set; }
 
         public JsonObject Divisions { get; set; }
 

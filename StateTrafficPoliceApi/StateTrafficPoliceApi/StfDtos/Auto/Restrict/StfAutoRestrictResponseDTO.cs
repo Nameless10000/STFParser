@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.StfDtos.Auto.Restrict
 {
-    public class StfAutoRestrictResponseDTO
+    public class StfAutoRestrictResponseDTO : AbstractResponseDTO
     {
         public string RequestTime { get; set; }
 

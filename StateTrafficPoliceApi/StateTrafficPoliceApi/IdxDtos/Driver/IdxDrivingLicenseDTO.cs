@@ -16,6 +16,10 @@ namespace StateTrafficPoliceApi.IdxDtos.Driver
 
         public string DrivingLicenseCategory { get; set; }
 
+        public string Wanted { get; set; }
+
         public List<IdxDecisionDTO> DecisionList { get; set; }
+
+        public string Description { get; internal set; }
     }
 }

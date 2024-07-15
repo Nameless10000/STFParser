@@ -2,7 +2,7 @@
 
 namespace StateTrafficPoliceApi.StfDtos.Auto.History
 {
-    public class StfAutoHistoryResponseDTO
+    public class StfAutoHistoryResponseDTO : AbstractResponseDTO
     {
         public string RequestTime { get; set; }
 
@@ -13,8 +13,6 @@ namespace StateTrafficPoliceApi.StfDtos.Auto.History
         public string Vin { get; set; }
 
         public string Regnum { get; set; }
-
-        public string Message { get; set; }
 
         public string RegisterToken { get; set; }
 

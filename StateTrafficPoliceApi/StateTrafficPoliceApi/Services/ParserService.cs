@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using Quartz;
 using StateTrafficPoliceApi.Dtos;
 using StateTrafficPoliceApi.Dtos.Auto;
 using StateTrafficPoliceApi.Dtos.Driver;
@@ -28,7 +29,7 @@ using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
 {
-    public partial class ParserService(IMemoryCache cache, IMapper mapper)
+    public partial class ParserService(IMemoryCache cache, IMapper mapper, ISchedulerFactory schedulerFactory)
     {
         private readonly HttpClient _httpClient = new();
 
@@ -148,22 +149,14 @@ namespace StateTrafficPoliceApi.Services
             _httpClient.DefaultRequestHeaders.Add("X-Csrftokensec", tokenValue);
         }
 
-        private async Task<TValue> GetResponse<TValue, TCheckDTO, TResolvedDTO>(string fetchAddress, TCheckDTO checkDTO, Func<TCheckDTO, CaptchaDTO, TResolvedDTO> getResolvedDto)
+        private async Task<TValue> GetResponse<TValue, TCheckDTO, TResolvedDTO>(string fetchAddress, TCheckDTO checkDTO, Func<TCheckDTO, CaptchaDTO, TResolvedDTO> getResolvedDto) where TValue : AbstractResponseDTO
         {
-            var isSuccessStatusCode = false;
-            var response = new HttpResponseMessage();
-
-            var i = 0;
-            while (!isSuccessStatusCode)
+            var responseResult = default(TValue);
+            while (responseResult == null)
             {
-                if (i > 0)
-                    await Task.Delay(10000);
 
                 if (!cache.TryGetValue<CaptchaDTO>("captcha", out var resolvedCaphca))
-                {
-                    await Task.Delay(10000);
                     continue;
-                }
 
                 var resolvedDto = getResolvedDto(checkDTO, resolvedCaphca);
 
@@ -175,16 +168,29 @@ namespace StateTrafficPoliceApi.Services
                 var content = new Dictionary<string, string>();
 
                 foreach (var prop in props)
-                    content.Add(prop.Name[0].ToString().ToLower() + prop.Name[1..], prop.GetValue(resolvedDto).ToString());
+                {
+                    var value = prop.GetValue(resolvedDto);
+                    if (value == null)
+                        continue;
+
+                    content.Add(prop.Name[0].ToString().ToLower() + prop.Name[1..], value.ToString());
+                }
 
                 await SetHeaders();
 
-                response = await _httpClient.PostAsync(fetchAddress, new FormUrlEncodedContent(content));
-                i++;
-                isSuccessStatusCode = response.StatusCode == HttpStatusCode.OK;
+                var response = await _httpClient.PostAsync(fetchAddress, new FormUrlEncodedContent(content));
+
+                responseResult = await response.Content.ReadFromJsonAsync<TValue>();
+
+                if (responseResult.Message == "Проверка CAPTCHA не была пройдена из-за неверного введенного значения.")
+                {
+                    var scheduler = await schedulerFactory.GetScheduler();
+                    await scheduler.TriggerJob(JobKey.Create("CaptchaRenewalJob", "group1"));
+                    continue;
+                }
             }
 
-            return await response.Content.ReadFromJsonAsync<TValue>();
+            return responseResult;
         }
 
         [GeneratedRegex("<meta name=\'csrf-token-value\' content=\'(.+)\'/>")]

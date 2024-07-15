@@ -1,7 +1,8 @@
 ﻿namespace StateTrafficPoliceApi.StfDtos.Auto.DTP
 {
-    public class StfAutoDTPResponseDTO
+    public class StfAutoDTPResponseDTO : AbstractResponseDTO
     {
+
         public string RequestTime { get; set; }
 
         public StfAutoDTPRequestResult RequestResult { get; set; }

@@ -29,14 +29,15 @@ public class MapperProfile : Profile
             .ForMember(x => x.DrivingLicenseIssueDate, opt => opt.MapFrom(xx => xx.RequestTime.Split(" ", StringSplitOptions.None)[0]))
             .ForMember(x => x.DrivingLicenseExpiryDate, opt => opt.MapFrom(xx => xx.Doc.Srok.ToString("dd.MM.yyyy")))
             .ForMember(x => x.DrivingLicenseCategory, opt => opt.MapFrom(xx => xx.Doc.Cat))
-            .ForMember(x => x.DecisionList, opt => opt.MapFrom(xx => xx.Decis));
+            .ForMember(x => x.DecisionList, opt => opt.MapFrom(xx => xx.Decis))
+            .ForMember(x => x.Wanted, opt => opt.MapFrom(xx => xx.Wanted != null ? $"Документ не действителен и разыскивается с {xx.Wanted.DateWanted:d}" : ""))
+            .ForMember(x => x.Description, opt => opt.MapFrom(xx => xx.Doc.StKart != "T" ? "Недействителен" : "Действует"));
 
         CreateMap<StfDecisionDTO, IdxDecisionDTO>()
             .ForMember(x => x.Date, opt => opt.MapFrom(xx => xx.Date.ToString("dd.MM.yyyy")))
             .ForMember(x => x.Period, opt => opt.MapFrom(xx => xx.Srok.ToString()))
             .ForMember(x => x.BirthPlace, opt => opt.MapFrom(xx => xx.BPlace))
             .ForMember(x => x.RegName, opt => opt.MapFrom(xx => xx.RegionName));
-
 
         #endregion
 

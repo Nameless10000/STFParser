@@ -1,6 +1,6 @@
 ﻿namespace StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 
-public class StfAutoDCResponseDTO
+public class StfAutoDCResponseDTO : AbstractResponseDTO
 {
     public string RequestTime { get; set; }
 
