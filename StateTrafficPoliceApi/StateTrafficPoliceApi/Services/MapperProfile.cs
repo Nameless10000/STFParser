@@ -54,7 +54,11 @@ public class MapperProfile : Profile
             .ForMember(x => x.Vin, opt => opt.MapFrom(xx => xx.Vin))
             .ForMember(x => x.Model, opt => opt.MapFrom(xx => xx.RequestResult.VehicleBrandmodel))
             .ForMember(x => x.Type, opt => opt.MapFrom(xx => xx.RequestResult.VehicleBodyType))
-            .ForMember(x => x.Year, opt => opt.MapFrom(xx => xx.RequestResult.VehicleReleaseYear));
+            .ForMember(x => x.Year, opt => opt.MapFrom(xx => xx.RequestResult.VehicleReleaseYear))
+            .ForMember(x => x.PowerHp, opt => opt.MapFrom(xx => xx.RequestResult.VehicleEnginePower))
+            .ForMember(x => x.PowerKwt, opt => opt.MapFrom(xx => xx.RequestResult.VehicleEnginePowerKW))
+            .ForMember(x => x.EngineVolume, opt => opt.MapFrom(xx => xx.RequestResult.VehicleEnclosedVolume))
+            .ForMember(x => x.Color, opt => opt.MapFrom(xx => xx.RequestResult.VehicleBodyColor));
 
         CreateMap<StfAutoPeriod, IdxOwnershipPeriod>()
             .ForMember(x => x.SimplePersonType, opt => opt.MapFrom(xx => xx.OwnerType))
@@ -101,7 +105,12 @@ public class MapperProfile : Profile
             .ForMember(x => x.DateDecis, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDecis.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):d} {xx.DateDecis.Split(" ", StringSplitOptions.None)[1]}"))
             .ForMember(x => x.DateDiscount, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDiscount.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):d} {xx.DateDiscount.Split(" ", StringSplitOptions.None)[1]}"))
             .ForMember(x => x.DatePost, opt => opt.MapFrom(xx => xx.DatePost.ToString("dd.MM.yyyy")))
-            .ForMember(x => x.DivisionName, opt => opt.MapFrom(xx => xx.Divisions[xx.Division.ToString()]["name"].ToString()));
+            .ForMember(x => x.DateSSP, opt => opt.MapFrom(xx => xx.DateSSP != null ? xx.DateSSP.Value.ToString("dd.MM.yyyy") : ""))
+            .ForMember(x => x.DivisionName, opt => opt.MapFrom(xx => xx.Divisions[xx.Division.ToString()]["name"].ToString()))
+            .ForMember(x => x.Photos, opt => opt.MapFrom(xx => xx.Photos));
+
+        CreateMap<string, IdxPhotoDTO>()
+            .ForMember(x => x.Base64Value, opt => opt.MapFrom(xx => xx));
 
         #endregion
 

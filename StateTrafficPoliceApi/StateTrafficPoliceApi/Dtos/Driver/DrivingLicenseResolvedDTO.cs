@@ -14,8 +14,8 @@
         {
             return new()
             {
-                Num = checkDTO.drivingLicenseNumber,
-                Date = checkDTO.drivingLicenseDate,
+                Num = checkDTO.DrivingLicenseNumber,
+                Date = checkDTO.DrivingLicenseDate,
                 CaptchaToken = capchaDTO.Token,
                 CaptchaWord = capchaDTO.CaptchaWord
             };

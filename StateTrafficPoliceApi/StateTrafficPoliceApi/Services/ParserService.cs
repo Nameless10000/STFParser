@@ -68,7 +68,31 @@ namespace StateTrafficPoliceApi.Services
 
             stfDto.Data.ForEach(x => x.Divisions = stfDto.Divisions);
 
+            if (autoCheckDTO.PhotoRequired)
+                await ExtractPhotos(autoCheckDTO, stfDto);
+
             return mapper.Map<IdxAutoFinesListDTO>(stfDto);
+        }
+
+        private async Task ExtractPhotos(AutoCheckGrzDTO autoCheckDTO, StfAutoFinesResponseDTO stfDto)
+        {
+            var photoes = new List<string>();
+            foreach (var data in stfDto.Data)
+            {
+                var content = new Dictionary<string, string>
+                {
+                    { "regnum", autoCheckDTO.Gosnomer },
+                    { "cafapPicsToken", stfDto.CafapPicsToken },
+                    { "divid", data.Division.ToString() },
+                    { "post", data.NumPost }
+                };
+
+                var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/fines/pics", new FormUrlEncodedContent(content));
+                var request = await response.Content.ReadFromJsonAsync<StfPhotoesResponseDTO>();
+
+                if (request != null)
+                    data.Photos = request.Photos.Select(x => x.Base64Value).ToList();
+            }
         }
 
         public async Task<IdxAutoHistoryDTO> CheckAutoHistory(AutoCheckVinDTO autoCheckDTO)
@@ -206,8 +230,8 @@ namespace StateTrafficPoliceApi.Services
                 {
                     CreatedAt = DateTime.Now,
                     Data = jsonData,
-                    drivingLicenseDate = (checkDTO as DrivingLicenseCheckDTO).drivingLicenseDate,
-                    DrivingLicenseNumber = (checkDTO as DrivingLicenseCheckDTO).drivingLicenseNumber,
+                    drivingLicenseDate = (checkDTO as DrivingLicenseCheckDTO).DrivingLicenseDate,
+                    DrivingLicenseNumber = (checkDTO as DrivingLicenseCheckDTO).DrivingLicenseNumber,
                 };
 
                 await dbContext.StfDriverLicenseResponses.AddAsync(log);

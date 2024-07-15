@@ -29,5 +29,9 @@
         public string SupplierBillID { get; set; }
 
         public string DatePost { get; set; }
+
+        public string DateSSP { get; set; }
+
+        public List<IdxPhotoDTO> Photos { get; set; }
     }
 }

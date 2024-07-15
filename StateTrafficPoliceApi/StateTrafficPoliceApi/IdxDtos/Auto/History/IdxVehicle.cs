@@ -12,6 +12,14 @@
 
         public string BodyNumber { get; set; }
 
+        public string Color { get; set; }
+
+        public string EngineVolume { get; set; }
+
+        public string PowerHp { get; set; }
+
+        public string PowerKwt { get; set; }
+
         /*public string Category { get; set; }
 
         public string EngineNumber { get; set; }*/

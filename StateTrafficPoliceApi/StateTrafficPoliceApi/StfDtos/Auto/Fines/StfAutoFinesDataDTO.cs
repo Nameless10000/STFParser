@@ -35,5 +35,9 @@ namespace StateTrafficPoliceApi.StfDtos.Auto.Fines
         public string SupplierBillID { get; set; }
 
         public DateTime DatePost { get; set; }
+
+        public DateTime? DateSSP { get; set; }
+
+        public List<string> Photos { get; set; }
     }
 }
