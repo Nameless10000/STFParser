@@ -12,6 +12,10 @@
 
         public string RestrictCause { get; set; }
 
+        public string Restriction { get; set; }
+
+        public string RestrictOrg { get; set; }
+
         public string RestrictPhone { get; set; }
     }
 }

@@ -74,26 +74,7 @@ namespace StateTrafficPoliceApi.Services
             return mapper.Map<IdxAutoFinesListDTO>(stfDto);
         }
 
-        private async Task ExtractPhotos(AutoCheckGrzDTO autoCheckDTO, StfAutoFinesResponseDTO stfDto)
-        {
-            var photoes = new List<string>();
-            foreach (var data in stfDto.Data)
-            {
-                var content = new Dictionary<string, string>
-                {
-                    { "regnum", autoCheckDTO.Gosnomer },
-                    { "cafapPicsToken", stfDto.CafapPicsToken },
-                    { "divid", data.Division.ToString() },
-                    { "post", data.NumPost }
-                };
-
-                var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/fines/pics", new FormUrlEncodedContent(content));
-                var request = await response.Content.ReadFromJsonAsync<StfPhotoesResponseDTO>();
-
-                if (request != null)
-                    data.Photos = request.Photos.Select(x => x.Base64Value).ToList();
-            }
-        }
+        
 
         public async Task<IdxAutoHistoryDTO> CheckAutoHistory(AutoCheckVinDTO autoCheckDTO)
         {
@@ -160,6 +141,26 @@ namespace StateTrafficPoliceApi.Services
         }
 
         #region Helpers
+
+        private async Task ExtractPhotos(AutoCheckGrzDTO autoCheckDTO, StfAutoFinesResponseDTO stfDto)
+        {
+            foreach (var data in stfDto.Data)
+            {
+                var content = new Dictionary<string, string>
+                {
+                    { "regnum", autoCheckDTO.Gosnomer },
+                    { "cafapPicsToken", stfDto.CafapPicsToken },
+                    { "divid", data.Division.ToString() },
+                    { "post", data.NumPost }
+                };
+
+                var response = await _httpClient.PostAsync("https://xn--b1afk4ade.xn--90adear.xn--p1ai/proxy/check/fines/pics", new FormUrlEncodedContent(content));
+                var request = await response.Content.ReadFromJsonAsync<StfPhotoesResponseDTO>();
+
+                if (request != null)
+                    data.Photos = request.Photos.Select(x => x.Base64Value).ToList();
+            }
+        }
 
         private async Task SetHeaders()
         {

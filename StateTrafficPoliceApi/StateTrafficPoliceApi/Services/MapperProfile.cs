@@ -139,7 +139,9 @@ public class MapperProfile : Profile
             .ForMember(x => x.RestrictCause, opt => opt.MapFrom(xx => xx.OsnOgr))
             .ForMember(x => x.RestrictPhone, opt => opt.MapFrom(xx => xx.Phone))
             .ForMember(x => x.RestrictDate, opt => opt.MapFrom(xx => xx.Dateogr))
-            .ForMember(x => x.RestrictRegion, opt => opt.MapFrom(xx => xx.Regname));
+            .ForMember(x => x.RestrictRegion, opt => opt.MapFrom(xx => xx.Regname))
+            .ForMember(x => x.RestrictOrg, opt => opt.MapFrom(xx => xx.RestrictOrg))
+            .ForMember(x => x.Restriction, opt => opt.MapFrom(xx => xx.Restriction));
 
         #endregion
 
