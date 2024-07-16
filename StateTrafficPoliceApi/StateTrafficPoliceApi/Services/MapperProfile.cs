@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.JSInterop.Infrastructure;
 using StateTrafficPoliceApi.IdxDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.IdxDtos.Auto.DTP;
 using StateTrafficPoliceApi.IdxDtos.Auto.Fines;
@@ -6,6 +7,7 @@ using StateTrafficPoliceApi.IdxDtos.Auto.History;
 using StateTrafficPoliceApi.IdxDtos.Auto.Restrict;
 using StateTrafficPoliceApi.IdxDtos.Auto.Wanted;
 using StateTrafficPoliceApi.IdxDtos.Driver;
+using StateTrafficPoliceApi.StfDtos;
 using StateTrafficPoliceApi.StfDtos.Auto.DiagnosticCard;
 using StateTrafficPoliceApi.StfDtos.Auto.DTP;
 using StateTrafficPoliceApi.StfDtos.Auto.Fines;
@@ -31,7 +33,8 @@ public class MapperProfile : Profile
             .ForMember(x => x.DrivingLicenseCategory, opt => opt.MapFrom(xx => xx.Doc.Cat))
             .ForMember(x => x.DecisionList, opt => opt.MapFrom(xx => xx.Decis))
             .ForMember(x => x.Wanted, opt => opt.MapFrom(xx => xx.Wanted != null ? $"Документ не действителен и разыскивается с {xx.Wanted.DateWanted:dd.MM.yyyy}" : ""))
-            .ForMember(x => x.Description, opt => opt.MapFrom(xx => xx.Doc.StKart != "T" && xx.Doc.StKart != "Т" ? "Недействителен" : "Действует"));
+            .ForMember(x => x.Description, opt => opt.MapFrom(xx => xx.Doc.StKart != "T" && xx.Doc.StKart != "Т" ? "Недействителен" : "Действует"))
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => GetDriverStatus(xx)));
 
         CreateMap<StfDecisionDTO, IdxDecisionDTO>()
             .ForMember(x => x.Date, opt => opt.MapFrom(xx => xx.Date.ToString("d")))
@@ -47,7 +50,8 @@ public class MapperProfile : Profile
 
         CreateMap<StfAutoHistoryResponseDTO, IdxAutoHistoryDTO>()
             .ForMember(x => x.OwnershipPeriods, opt => opt.MapFrom(xx => xx.RequestResult.Periods))
-            .ForMember(x => x.Vehicle, opt => opt.MapFrom(xx => xx));
+            .ForMember(x => x.Vehicle, opt => opt.MapFrom(xx => xx))
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => GetAutoStatus(xx)));
 
         CreateMap<StfAutoHistoryResponseDTO, IdxVehicle>()
             .ForMember(x => x.BodyNumber, opt => opt.MapFrom(xx => xx.RequestResult.VehicleBodyNumber))
@@ -71,7 +75,8 @@ public class MapperProfile : Profile
 
         CreateMap<StfAutoDTPResponseDTO, IdxAutoDtpDTO>()
             .ForMember(x => x.DtpList, opt => opt.MapFrom(xx => xx.RequestResult.Accidents))
-            .ForMember(x => x.Status, opt => opt.Ignore());
+            .ForMember(x => x.Status, opt => opt.Ignore())
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => GetAutoStatus(xx)));
 
         CreateMap<StfAccidentDTO, IdxAccidentDTO>()
             .ForMember(x => x.DtpRegion, opt => opt.MapFrom(xx => xx.AccidentPlace))
@@ -86,7 +91,8 @@ public class MapperProfile : Profile
 
         #region Diagnostic card
 
-        CreateMap<ConvertedAutoDCResponseDTO, IdxAutoDcListDTO>();
+        CreateMap<ConvertedAutoDCResponseDTO, IdxAutoDcListDTO>()
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => GetAutoStatus(xx)));
 
         CreateMap<StfAutoShortDcDTO, IdxAutoDcDTO>()
             .ForMember(x => x.Status, opt => opt.MapFrom(xx => xx.DcExpirationDate > DateTime.Now ? "active" : "inactive"))
@@ -99,7 +105,8 @@ public class MapperProfile : Profile
         #region Fines
 
         CreateMap<StfAutoFinesResponseDTO, IdxAutoFinesListDTO>()
-            .ForMember(x => x.FinesList, opt => opt.MapFrom(xx => xx.Data));
+            .ForMember(x => x.FinesList, opt => opt.MapFrom(xx => xx.Data))
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => GetAutoStatus(xx)));
 
         CreateMap<StfAutoFinesDataDTO, IdxAutoFineDTO>()
             .ForMember(x => x.DateDecis, opt => opt.MapFrom(xx => $"{DateTime.ParseExact(xx.DateDecis.Split(" ", StringSplitOptions.None)[0], "yyyy-MM-dd", null):d} {xx.DateDecis.Split(" ", StringSplitOptions.None)[1]}"))
@@ -118,7 +125,7 @@ public class MapperProfile : Profile
 
         CreateMap<StfAutoWantedResponseDTO, IdxAutoWantedListDTO>()
             .ForMember(x => x.WantedList, opt => opt.MapFrom(xx => xx.RequestResult.Records))
-            .ForMember(x => x.Status, opt => opt.Ignore());
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => GetAutoStatus(xx)));
 
         CreateMap<StfAutoWantedDTO, IdxAutoWantedDTO>()
             .ForMember(x => x.Year, opt => opt.MapFrom(xx => xx.VehicleYear))
@@ -131,7 +138,7 @@ public class MapperProfile : Profile
 
         CreateMap<StfAutoRestrictResponseDTO, IdxAutoRestrictListDTO>()
             .ForMember(x => x.RestrictList, opt => opt.MapFrom(xx => xx.RequestResult.Records))
-            .ForMember(x => x.Status, opt => opt.Ignore());
+            .ForMember(x => x.Status, opt => opt.MapFrom(xx => GetAutoStatus(xx)));
 
         CreateMap<StfAutoRestrictDTO, IdxAutoRestrictDTO>()
             .ForMember(x => x.Model, opt => opt.MapFrom(xx => xx.Tsmodel))
@@ -146,5 +153,35 @@ public class MapperProfile : Profile
         #endregion
 
         #endregion
+    }
+
+    private int GetDriverStatus(StfDriverResponseDTO dto)
+    {
+        return dto.Code switch
+        {
+            var code when code == 100 && dto.Doc != null => 0,
+            var code when code == 200 && dto.Doc == null => -404,
+            _ => -1
+        };
+    }
+
+    private int GetAutoStatus(AbstractResponseDTO dto)
+    {
+        return dto.Status switch
+        {
+            var code when dto is StfAutoHistoryResponseDTO stf && stf.RequestResult != null && code == 200 => 0,
+            var code when dto is StfAutoHistoryResponseDTO && code == 403 || code == 404 => -404,
+            var code when dto is StfAutoWantedResponseDTO stf && stf.RequestResult != null && stf.RequestResult.Count > 0 && code == 200 => 0,
+            var _ when dto is StfAutoWantedResponseDTO stf && stf.RequestResult != null && stf.RequestResult.Count == 0 => -404,
+            var code when dto is StfAutoRestrictResponseDTO stf && stf.RequestResult != null && stf.RequestResult.Count > 0 && code == 200 => 0,
+            var _ when dto is StfAutoRestrictResponseDTO stf && stf.RequestResult != null && stf.RequestResult.Count == 0 => -404,
+            var code when dto is StfAutoDCResponseDTO stf && stf.RequestResult != null && stf.RequestResult.DiagnosticCards.Count > 0 && code == 200 => 0,
+            var _ when dto is StfAutoDCResponseDTO stf && stf.RequestResult != null && stf.RequestResult.DiagnosticCards.Count == 0 => -404,
+            var code when dto is StfAutoDTPResponseDTO stf && stf.RequestResult != null && stf.RequestResult.Accidents.Count > 0 && code == 200 => 0,
+            var _ when dto is StfAutoDTPResponseDTO stf && stf.RequestResult != null && stf.RequestResult.Accidents.Count == 0 => -404,
+            var _ when dto is StfAutoFinesResponseDTO stf && stf.Data != null && stf.Data.Count > 0 => 0,
+            var _ when dto is StfAutoFinesResponseDTO stf && stf.Data != null && stf.Data.Count == 0 => -404,
+            _ => -1
+        };
     }
 }

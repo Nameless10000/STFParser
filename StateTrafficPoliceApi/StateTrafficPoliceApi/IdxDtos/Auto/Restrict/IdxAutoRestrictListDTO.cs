@@ -1,9 +1,7 @@
 ﻿namespace StateTrafficPoliceApi.IdxDtos.Auto.Restrict
 {
-    public class IdxAutoRestrictListDTO
+    public class IdxAutoRestrictListDTO : IdxAbstractResposeDTO
     {
-        public int Status { get; set; } = 0;
-
         public List<IdxAutoRestrictDTO> RestrictList { get; set; }
     }
 }

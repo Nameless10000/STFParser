@@ -9,7 +9,5 @@
         public string Hostname { get; set; }
 
         public string Vin { get; set; }
-
-        public int Status { get; set; }
     }
 }

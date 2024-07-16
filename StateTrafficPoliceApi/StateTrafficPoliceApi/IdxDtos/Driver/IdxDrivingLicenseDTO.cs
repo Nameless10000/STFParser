@@ -2,10 +2,8 @@
 
 namespace StateTrafficPoliceApi.IdxDtos.Driver
 {
-    public class IdxDrivingLicenseDTO
+    public class IdxDrivingLicenseDTO : IdxAbstractResposeDTO
     {
-        public int Status { get; set; } = 0;
-
         public string PersonBirthDate { get; set; }
 
         public string DrivingLicenseNumber { get; set; }

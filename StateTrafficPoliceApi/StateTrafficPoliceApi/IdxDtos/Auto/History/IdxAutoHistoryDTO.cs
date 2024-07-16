@@ -1,9 +1,7 @@
 ﻿namespace StateTrafficPoliceApi.IdxDtos.Auto.History
 {
-    public class IdxAutoHistoryDTO
+    public class IdxAutoHistoryDTO : IdxAbstractResposeDTO
     {
-        public int Status { get; set; } = 0;
-
         public IdxVehicle Vehicle { get; set; }
 
         /*public VehiclePassport VehiclePassport { get; set; }*/

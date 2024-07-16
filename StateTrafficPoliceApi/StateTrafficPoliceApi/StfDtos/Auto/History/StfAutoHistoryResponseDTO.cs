@@ -15,7 +15,5 @@ namespace StateTrafficPoliceApi.StfDtos.Auto.History
         public string Regnum { get; set; }
 
         public string RegisterToken { get; set; }
-
-        public int Status { get; set; }
     }
 }

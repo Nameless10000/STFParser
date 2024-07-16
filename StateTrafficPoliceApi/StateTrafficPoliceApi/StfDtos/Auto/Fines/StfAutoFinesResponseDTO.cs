@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 using System.Text.Json.Nodes;
 
 namespace StateTrafficPoliceApi.StfDtos.Auto.Fines
@@ -10,6 +11,8 @@ namespace StateTrafficPoliceApi.StfDtos.Auto.Fines
         public string Request { get; set; }
 
         public int Code { get; set; }
+
+        public override int Status => Code;
 
         public List<StfAutoFinesDataDTO> Data { get; set; }
 

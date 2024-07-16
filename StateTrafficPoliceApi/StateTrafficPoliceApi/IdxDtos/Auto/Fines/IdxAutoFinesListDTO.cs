@@ -1,9 +1,7 @@
 ﻿namespace StateTrafficPoliceApi.IdxDtos.Auto.Fines
 {
-    public class IdxAutoFinesListDTO
+    public class IdxAutoFinesListDTO : IdxAbstractResposeDTO
     {
-        public int Status { get; set; } = 0;
-
         public List<IdxAutoFineDTO> FinesList { get; set; }
     }
 }

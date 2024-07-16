@@ -122,20 +122,28 @@ namespace StateTrafficPoliceApi.Services
 
             var convertedStfDto = new ConvertedAutoDCResponseDTO();
 
-            stfDto.RequestResult.DiagnosticCards[0].PreviousDcs.ForEach(x => x.Vin = stfDto.RequestResult.DiagnosticCards[0].Vin);
+            if (stfDto.RequestResult.DiagnosticCards.Count != 0)
+            {
+                stfDto.RequestResult.DiagnosticCards[0].PreviousDcs.ForEach(x => x.Vin = stfDto.RequestResult.DiagnosticCards[0].Vin);
 
-            convertedStfDto.List =
-                [
-                    new StfAutoShortDcDTO()
-                    {
-                        Vin = stfDto.RequestResult.DiagnosticCards[0].Vin,
-                        DcDate = stfDto.RequestResult.DiagnosticCards[0].DcDate,
-                        DcExpirationDate = stfDto.RequestResult.DiagnosticCards[0].DcExpirationDate,
-                        DcNumber = stfDto.RequestResult.DiagnosticCards[0].DcNumber,
-                        OdometerValue = stfDto.RequestResult.DiagnosticCards[0].OdometerValue
-                    },
-                    .. stfDto.RequestResult.DiagnosticCards[0].PreviousDcs
-                ];
+                convertedStfDto.List =
+                    [
+                        new StfAutoShortDcDTO()
+                        {
+                            Vin = stfDto.RequestResult.DiagnosticCards[0].Vin,
+                            DcDate = stfDto.RequestResult.DiagnosticCards[0].DcDate,
+                            DcExpirationDate = stfDto.RequestResult.DiagnosticCards[0].DcExpirationDate,
+                            DcNumber = stfDto.RequestResult.DiagnosticCards[0].DcNumber,
+                            OdometerValue = stfDto.RequestResult.DiagnosticCards[0].OdometerValue
+                        },
+                        .. stfDto.RequestResult.DiagnosticCards[0].PreviousDcs
+                    ];
+            }
+            else
+                convertedStfDto.List = [];
+
+
+            convertedStfDto.Status = stfDto.Status;
 
             return mapper.Map<IdxAutoDcListDTO>(convertedStfDto);
         }
