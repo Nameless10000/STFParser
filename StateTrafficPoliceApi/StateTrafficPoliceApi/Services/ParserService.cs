@@ -72,7 +72,6 @@ namespace StateTrafficPoliceApi.Services
 
         private async Task ExtractPhotos(AutoCheckGrzDTO autoCheckDTO, StfAutoFinesResponseDTO stfDto)
         {
-            var photoes = new List<string>();
             foreach (var data in stfDto.Data)
             {
                 var content = new Dictionary<string, string>
@@ -85,6 +84,11 @@ namespace StateTrafficPoliceApi.Services
 
                 var response = await _httpClient.PostAsync($"{_host}/proxy/check/fines/pics", new FormUrlEncodedContent(content));
                 var request = await response.Content.ReadFromJsonAsync<StfPhotoesResponseDTO>();
+
+                if (request != null)
+                    data.Photos = request.Photos.Select(x => x.Base64Value).ToList();
+            }
+        }
 
         public async Task<IdxAutoHistoryDTO> CheckAutoHistory(AutoCheckVinDTO autoCheckDTO)
         {
