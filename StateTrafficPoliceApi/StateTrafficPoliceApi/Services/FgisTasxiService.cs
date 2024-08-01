@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Html;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 
 namespace StateTrafficPoliceApi.Services
 {
-    public partial class FgisTasxiService(StfDbContext stfDbContext)
+    public partial class FgisTasxiService(StfDbContext stfDbContext, IWebHostEnvironment env)
     {
         private class Captcha
         {
@@ -18,10 +19,15 @@ namespace StateTrafficPoliceApi.Services
         }
 
         private readonly string _host = "https://sicmt.ru/fgis-taksi";
-        private readonly HttpClient _httpClient = new();
+
+        private CookieContainer cookieContainer = new();
+       
+        private HttpClient _httpClient;
 
         public async Task ParseTaxi()
         {
+            _httpClient = new(new HttpClientHandler() { CookieContainer = cookieContainer });
+
             var captchaData = await SolveCaptcha();
 
             var carIDs = new List<string>();
@@ -65,7 +71,7 @@ namespace StateTrafficPoliceApi.Services
 
             var captcha = await response.Content.ReadFromJsonAsync<Captcha>();
 
-            using var fs = File.Create("C:\\Users\\Евгений\\Desktop\\captcha.png");
+            using var fs = File.Create( $"{env.ContentRootPath}\\captcha.png");
             await fs.WriteAsync(captcha.Bytes);
             fs.Close();
             await Console.Out.WriteLineAsync("Введите решение капчи:");
