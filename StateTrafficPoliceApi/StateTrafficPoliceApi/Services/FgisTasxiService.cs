@@ -28,6 +28,8 @@ namespace StateTrafficPoliceApi.Services
         {
             _httpClient = new(new HttpClientHandler() { CookieContainer = cookieContainer });
 
+            // cookieContainer.Add(new Cookie("captchaIsValid", "..."));
+
             var captchaData = await SolveCaptcha();
 
             var carIDs = new List<string>();
