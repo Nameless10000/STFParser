@@ -27,6 +27,7 @@ namespace StateTrafficPoliceApi
 
             builder.Services.AddTransient<ParserService>();
             builder.Services.AddTransient<FlaskService>();
+            builder.Services.AddTransient<FgisTasxiService>();
 
             var flaskData = builder.Configuration.GetSection("FlaskAPI");
             builder.Services.Configure<FlaskData>(flaskData);
@@ -36,7 +37,7 @@ namespace StateTrafficPoliceApi
             {
                 q.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
 
-                var jobKey = new JobKey("CaptchaRenewalJob", "group1");
+               /* var jobKey = new JobKey("CaptchaRenewalJob", "group1");
                 q.AddJob<CaptchaRenewalJob>(opts => opts
                     .WithIdentity(jobKey));
 
@@ -47,7 +48,7 @@ namespace StateTrafficPoliceApi
                         x.WithIntervalInSeconds(55)
                         .RepeatForever())
                     .StartAt(DateTimeOffset.ParseExact("00:00:20", "HH:mm:ss", null))
-                    );
+                    );*/
             });
 
             builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
