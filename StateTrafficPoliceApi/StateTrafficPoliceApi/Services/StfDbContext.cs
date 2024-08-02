@@ -19,6 +19,8 @@ namespace StateTrafficPoliceApi.Services
 
         public DbSet<StfWantedResponse> StfWantedResponses { get; set; }
 
+        public DbSet<FgisTaxiRecord> TaxiCars { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {            
             base.OnModelCreating(modelBuilder);

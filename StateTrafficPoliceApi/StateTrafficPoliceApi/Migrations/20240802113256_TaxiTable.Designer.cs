@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StateTrafficPoliceApi.Services;
 
@@ -11,9 +12,11 @@ using StateTrafficPoliceApi.Services;
 namespace StateTrafficPoliceApi.Migrations
 {
     [DbContext(typeof(StfDbContext))]
-    partial class StfDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240802113256_TaxiTable")]
+    partial class TaxiTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

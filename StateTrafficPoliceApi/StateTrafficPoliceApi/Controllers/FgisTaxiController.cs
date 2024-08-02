@@ -8,10 +8,9 @@ namespace StateTrafficPoliceApi.Controllers
     public class FgisTaxiController(FgisTasxiService fgisTasxiService) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> FetchTaxi()
+        public async Task<JsonResult> FetchTaxi()
         {
-            await fgisTasxiService.ParseTaxi();
-            return Ok();
+            return new(await fgisTasxiService.ParseTaxi());
         }
     }
 }
