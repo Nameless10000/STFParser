@@ -32,7 +32,7 @@ namespace StateTrafficPoliceApi.Services
             _httpClient = new(new HttpClientHandler() { CookieContainer = cookieContainer });
 
             var lastPage = 0;
-            var firstPage = 336;
+            var firstPage = 683; // страница для следующего старта 
 
             var captchaData = await SolveCaptcha();
 
